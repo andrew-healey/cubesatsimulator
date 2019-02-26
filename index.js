@@ -21,3 +21,15 @@ const CUBESAT_ALTITUDE;//Add something here
 
 //Define Cubesat stuff
 
+function Cubesat(){
+  let ret={};
+  let time=0;
+  function toggleInspection(){
+    //...
+  }
+  function setTime(t){
+    if(typeof(t)==="undefined") t=time+1;
+    //Set the spot in the orbit
+    time=t;
+  }
+}
