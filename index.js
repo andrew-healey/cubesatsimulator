@@ -22,7 +22,7 @@ function Earth(period, radius) {
    * @param t {Number} The time, in seconds, to which to set the Cubesat's timeline.
    */
   function setTime(t) {
-    if (typeof(t) === "undefined") t = time + 1;
+    if (t === undefined) t = time + 1;
     //TODO Set rotation based on time
     time = t % period;
   }
@@ -36,7 +36,7 @@ function Earth(period, radius) {
 
   //TODO Make ionosonde control, rendering methods
 
-  ret = Object.assign(ret, {
+  Object.assign(ret, {
     setTime,
     getTime
   }); //All public methods
@@ -66,7 +66,7 @@ function Cubesat(period, altitude) {
    * @param t {Number} The time, in seconds, to which to set the Cubesat's timeline.
    */
   function setTime(t) {
-    if (typeof(t) === "undefined") t = time + 1;
+    if (t === undefined) t = time + 1;
     //TODO Set the spot in the orbit, maybe based on some params - customization comes later
     time = t % period;
   }
@@ -80,7 +80,7 @@ function Cubesat(period, altitude) {
 
   //TODO Add rendering methods, toggling between inspection and action mode, receiving ionosonde soundings, handling logs and sending analyzed logs to the Setting class
 
-  ret = Object.assign(ret, {
+  Object.assign(ret, {
     getTime,
     setTime,
     toggleInspection
@@ -96,9 +96,58 @@ function Cubesat(period, altitude) {
  */
 function Setting(Three) {
   let ret = {};
+  let contexts={};//Shape {2,3}
+  let camera,controls,scene,renderer;
+
+  /**
+   * Initializes a Threejs environment without rendering.
+   * @param canvas3d {Object} - A Canvas element into which to draw the 3D scene
+   * @param context2d {Object} - A Canvas element into which to draw the 2D logs and info
+   */
+  function init(canvas3d,canvas2d){
+    if(context3d) contexts[3]=context3d;
+    if(context2d) contexts[2]=context2d;
+    renderer=new THREE.WebGLRenderer({
+      canvas:canvas3d
+    });
+    //...
+    
+  }
 
   //TODO Add Threejs stuff, init stuff, control stuff, etc.
 
-  ret = Object.assign(ret, {});//All public methods
+  Object.assign(ret, {}); //All public methods
+  return ret;
+}
+
+/**
+ * Describes the Ionosonde class, which handles sending and receiving of soundings
+ * @constructor
+ * @param long {Number} - A multiple of PI which determines the longitude of the ionosonde
+ * @param lat {Number} - A multiple of PI which determines the latitude of the ionosonde
+ */
+function Ionosonde(long, lat) {
+  let ret = {};
+
+  /**
+   * Sets the time, both time-travelling and passing seconds automatically. Meant to be used with a slider or something similar.
+   * @param t {Number} - The time, in seconds, to which to set the Ionosonde's timeline.
+   */
+  function setTime(t) {
+    if (t === undefined) t = time + 1;
+
+    time = t;
+  }
+
+  /**
+   * Just a simple getter function.
+   */
+  function getTime(){
+    return time;
+  }
+
+  //TODO Add sending, receiving and rendering
+
+  Object.assign(ret, {setTime,getTime});
   return ret;
 }
