@@ -91,6 +91,8 @@ function Cubesat(period, altitude) {
 
 /**
  * Describes the Setting class, which handles Threejs canvas render methods and generally directs the objects in the scene
+ * @constructor
+ * @param Three {Object} - The Threejs object, just here for functionality
  */
 function Setting(Three) {
   let ret = {};
