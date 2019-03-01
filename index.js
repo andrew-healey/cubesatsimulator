@@ -100,7 +100,7 @@ function Cubesat(period, altitude) {
  */
 function Setting(Three) {
   let ret = {};
-  let contexts={};//Shape {2,3}
+  let canvases={};//Shape {2,3}
   let camera,controls,scene,renderer;
 
   /**
@@ -109,8 +109,8 @@ function Setting(Three) {
    * @param context2d {Object} - A Canvas element into which to draw the 2D logs and info
    */
   function init(canvas3d,canvas2d){
-    if(context3d) contexts[3]=context3d;
-    if(context2d) contexts[2]=context2d;
+    if(canvas3d) canvases[3]=canvas3d;
+    if(canvas2d) canvases[2]=canvas2d;
     renderer=new THREE.WebGLRenderer({
       canvas:canvas3d
     });
@@ -134,9 +134,16 @@ function Setting(Three) {
     scene.background=background;
   }
 
+  /**
+   * Renders the scene once.
+   */
+  function render(){
+    renderer.render(scene,camera);
+  }
+
   //TODO Add Threejs stuff, init stuff, control stuff, etc.
 
-  Object.assign(ret, {}); //All public methods
+  Object.assign(ret, {init,render}); //All public methods
   return ret;
 }
 
@@ -217,3 +224,9 @@ function Wave(origin){
   Object.assign(ret,{setTime,getTime});
   return ret;
 }
+
+
+const element=document.getElementById("scene");
+const scene=new Setting(THREE,element);
+scene.init(element,null);
+scene.render();

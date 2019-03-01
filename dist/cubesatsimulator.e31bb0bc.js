@@ -33813,7 +33813,7 @@ function Cubesat(period, altitude) {
 
 function Setting(Three) {
   var ret = {};
-  var contexts = {}; //Shape {2,3}
+  var canvases = {}; //Shape {2,3}
 
   var camera, controls, scene, renderer;
   /**
@@ -33823,8 +33823,8 @@ function Setting(Three) {
    */
 
   function init(canvas3d, canvas2d) {
-    if (context3d) contexts[3] = context3d;
-    if (context2d) contexts[2] = context2d;
+    if (canvas3d) canvases[3] = canvas3d;
+    if (canvas2d) canvases[2] = canvas2d;
     renderer = new _OrbitControls.default.WebGLRenderer({
       canvas: canvas3d
     });
@@ -33851,10 +33851,21 @@ function Setting(Three) {
     background.wrapS = _OrbitControls.default.MirroredRepeatWrapping;
     background.wrapT = _OrbitControls.default.MirroredRepeatWrapping;
     scene.background = background;
+  }
+  /**
+   * Renders the scene once.
+   */
+
+
+  function render() {
+    renderer.render(scene, camera);
   } //TODO Add Threejs stuff, init stuff, control stuff, etc.
 
 
-  Object.assign(ret, {}); //All public methods
+  Object.assign(ret, {
+    init: init,
+    render: render
+  }); //All public methods
 
   return ret;
 }
@@ -33944,6 +33955,11 @@ function Wave(origin) {
   });
   return ret;
 }
+
+var element = document.getElementById("scene");
+var scene = new Setting(_OrbitControls.default, element);
+scene.init(element, null);
+scene.render();
 },{"three/examples/js/controls/OrbitControls":"node_modules/three/examples/js/controls/OrbitControls.js"}],"../../../../../../usr/local/lib/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -33971,7 +33987,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "36613" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "32991" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
