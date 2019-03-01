@@ -4,8 +4,7 @@
  * @author Aaron Chyatte
  */
 
-import THREE from "three";
-import OrbitControls from "node_modules/three/examples/js/controls/OrbitControls";
+import THREE from "three/examples/js/controls/OrbitControls";
 
 /**
  * Describes the Earth class, which renders the earth, rotates it, changes resolution based on processing speeds, controls ionosonde location and sounding and utilizes the github repo at mdiller/lowpoly-earth
@@ -118,7 +117,7 @@ function Setting(Three) {
     let loader=new THREE.TextureLoader();
     scene=new THREE.Scene();
     camera=new THREE.PerspectiveCamera(45,canvas3d.width/canvas3d.height,1,2000);
-    controls=new OrbitControls(camera,canvas3d);//Maybe use something different later, without panning and with strict limits
+    controls=new THREE.OrbitControls(camera,canvas3d);//Maybe use something different later, without panning and with strict limits
     let pointLight=new THREE.PointLight(0xCCCCCC);
     Object.assign(pointLight.position,{x:0,y:0,z:0});
     let hemLight=new THREE.HemisphereLight(0x888888,0x555555,1);
