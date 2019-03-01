@@ -167,4 +167,32 @@ function Ionosonde(long, lat) {
 /**
  * Describes the Wave class which simulates a radio wave sent up from an ionosonde and its interactions
  * @constructor
- * @param origin {}
+ * @param origin {Object} - An object of shape {longitude {Number},latitude {Number}} that represents the source of the wave.
+ */
+function Wave(origin){
+  let ret={};
+  let locations=[];
+  let time=0;
+
+  /**
+   * Calculates the locus of the wave's current location after refraction in the ionosphere
+   * @param t {Number} - The time to which to set the wave.
+   */
+  function setTime(t) {
+    if(t===undefined) t=time+1;
+
+    time=t;
+    return t;
+
+  }
+
+  /**
+   * Gets the time of the wave.
+   */
+  function getTime(){
+    return time;
+  }
+
+  Object.assign(ret,{setTime,getTime});
+  return ret;
+}
