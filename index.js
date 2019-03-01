@@ -111,7 +111,6 @@ function Setting(Three) {
       canvas:canvas3d
     });
     //...
-    
   }
 
   //TODO Add Threejs stuff, init stuff, control stuff, etc.
@@ -146,8 +145,26 @@ function Ionosonde(long, lat) {
     return time;
   }
 
-  //TODO Add sending, receiving and rendering
+  /**
+   * Receives soundings.
+   * @param signals {Array} - The array of signals sent, where each signal is an object of shape {transmitTime {Number},coords {Array[Number]},altitude {Number},direction {Number},frequency {Number}}
+   */
+  function receiveSounding(signals){
+    for(i in signals){
+      let signal=signals[i];
+
+      if(direction===-1){
+        //Check to see with ray-tracing (possibly) if should receive the signal
+        logSignal(signal.frequency,time-signal.transmitTime);
+      }
+    }
+  }
 
   Object.assign(ret, {setTime,getTime});
   return ret;
 }
+
+/**
+ * Describes the Wave class which simulates a radio wave sent up from an ionosonde and its interactions
+ * @constructor
+ * @param origin {}
