@@ -68,6 +68,11 @@ function Cubesat(period, altitude) {
   function setTime(t) {
     if (t === undefined) t = time + 1;
     //TODO Set the spot in the orbit, maybe based on some params - customization comes later
+
+    let coords,angle;
+    angle=Math.PI*2*(t%period/period);
+    coords={z:0,y:altitude*Math.SIN(angle),x:altitude*Math.COS(angle)};
+
     time = t % period;
   }
 
@@ -110,7 +115,24 @@ function Setting(Three) {
     renderer=new THREE.WebGLRenderer({
       canvas:canvas3d
     });
-    //...
+    let loader=new THREE.TextureLoader();
+    scene=new THREE.Scene();
+    camera=new THREE.PerspectiveCamera(45,canvas3d.width/canvas3d.height,1,2000);
+    controls=new OrbitControls(camera,canvas3d);//Maybe use something different later, without panning and with strict limits
+    let pointLight=new THREE.PointLight(0xCCCCCC);
+    Object.assign(pointLight.position,{x:0,y:0,z:0});
+    let hemLight=new THREE.HemisphereLight(0x888888,0x555555,1);
+    hemLight.position.set(0,0,0).normalize();
+    //Stars.jpg is from https://4.bp.blogspot.com/-t4nMV8Q9KpE/T8SNLkNyAiI/AAAAAAAAADM/gTAU2ovZm7Q/s1600/01.jpg
+    let background=loader.load("../public/stars.jpg",function ( texture ) {
+        var img = texture.image;
+        bgWidth= img.width;
+        bgHeight = img.height;
+        resize();
+    });
+    background.wrapS=THREE.MirroredRepeatWrapping;
+    background.wrapT=THREE.MirroredRepeatWrapping;
+    scene.background=background;
   }
 
   //TODO Add Threejs stuff, init stuff, control stuff, etc.
