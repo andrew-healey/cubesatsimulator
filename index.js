@@ -52,6 +52,17 @@ function Earth(period, radius) {
 function Cubesat(period, altitude) {
   let ret = {};
   let time = 0;
+  let model;
+
+  function init(THREE,simScene){
+    //Just kinda some pseudocode
+    model=new THREE.LoadModel("cubesatModel.");
+
+    setTime(0);
+
+    scene.add(model);
+    
+  }
 
   /**
    * Toggles inspection/action modes.
@@ -71,6 +82,8 @@ function Cubesat(period, altitude) {
     let coords,angle;
     angle=Math.PI*2*(t%period/period);
     coords={z:0,y:altitude*Math.SIN(angle),x:altitude*Math.COS(angle)};
+
+    model.position.set(coords.x,coords.y,coords.z);
 
     time = t % period;
   }
@@ -101,7 +114,8 @@ function Cubesat(period, altitude) {
 function Setting(Three) {
   let ret = {};
   let canvases={};//Shape {2,3}
-  let camera,controls,scene,renderer;
+  let scenes={};//Shape {sim,inspect}
+  let camera,controls,renderer;
 
   /**
    * Initializes a Threejs environment without rendering.
@@ -115,7 +129,7 @@ function Setting(Three) {
       canvas:canvas3d
     });
     let loader=new THREE.TextureLoader();
-    scene=new THREE.Scene();
+    scenes.sim=new THREE.Scene();
     camera=new THREE.PerspectiveCamera(45,canvas3d.width/canvas3d.height,1,2000);
     controls=new THREE.OrbitControls(camera,canvas3d);//Maybe use something different later, without panning and with strict limits
     let pointLight=new THREE.PointLight(0xCCCCCC);
@@ -131,14 +145,14 @@ function Setting(Three) {
     });
     background.wrapS=THREE.MirroredRepeatWrapping;
     background.wrapT=THREE.MirroredRepeatWrapping;
-    scene.background=background;
+    scenes.sim.background=background;
   }
 
   /**
    * Renders the scene once.
    */
   function render(){
-    renderer.render(scene,camera);
+    renderer.render(scenes.sim,camera);
   }
 
   //TODO Add Threejs stuff, init stuff, control stuff, etc.
@@ -199,7 +213,7 @@ function Ionosonde(long, lat) {
  */
 function Wave(origin){
   let ret={};
-  let locations=[];
+  let locus=[];
   let time=0;
 
   /**
@@ -208,6 +222,13 @@ function Wave(origin){
    */
   function setTime(t) {
     if(t===undefined) t=time+1;
+
+    //Calculate from the beginning of time
+    let newLocus=new Array(RESOLUTION).fill(origin);
+
+    for(point of newLocus){
+    }
+
 
     time=t;
     return t;
@@ -223,6 +244,23 @@ function Wave(origin){
 
   Object.assign(ret,{setTime,getTime});
   return ret;
+}
+
+/**
+ * Describes the Ionosphere class which renders and provides collision detection for the ionosphere.
+ * @param radius {Number} - The altitude of the ionosphere in general
+ */
+function Ionosphere(){
+  let ret={};
+  let physical;
+  const RESOLUTION=1000;
+  let [a,b,c,d]=Array(4).fill(0).map(i=>Math.round(Math.random()*50));
+  function init(scene,THREE){
+    physical=new THREE.SphereGeometry(175,100,100);
+    let material=new THREE.MeshBasicMaterial({alphaMap:"darkgray",color:0x898989});
+    physical=new THREE.Mesh(physical,material);
+    return physical;
+  }
 }
 
 
