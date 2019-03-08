@@ -54,14 +54,21 @@ function Cubesat(period, altitude) {
   let time = 0;
   let model;
 
-  function init(THREE,simScene){
+  /**
+   * Initializes the cubesat, setting its time to 0, returning its model and position, etc.
+   * @param 
+
+  /**
+   * Gets the current time of the Cubesat - just a getter
+   */
+  function init(THREE, simScene) {
     //Just kinda some pseudocode
-    model=new THREE.LoadModel("cubesatModel.");
+    //model=new THREE.LoadModel("cubesatModel.");
 
     setTime(0);
 
-    scene.add(model);
-    
+    return model;
+
   }
 
   /**
@@ -79,28 +86,27 @@ function Cubesat(period, altitude) {
     if (t === undefined) t = time + 1;
     //TODO Set the spot in the orbit, maybe based on some params - customization comes later
 
-    let coords,angle;
-    angle=Math.PI*2*(t%period/period);
-    coords={z:0,y:altitude*Math.SIN(angle),x:altitude*Math.COS(angle)};
+    let coords, angle;
+    angle = Math.PI * 2 * (t % period / period);
+    coords = {
+      z: 0,
+      y: altitude * Math.SIN(angle),
+      x: altitude * Math.COS(angle)
+    };
 
-    model.position.set(coords.x,coords.y,coords.z);
+    model.position.set(coords.x, coords.y, coords.z);
 
     time = t % period;
   }
 
-  /**
-   * Gets the current time of the Cubesat - just a getter
-   */
-  function getTime() {
-    return time;
-  }
 
   //TODO Add rendering methods, toggling between inspection and action mode, receiving ionosonde soundings, handling logs and sending analyzed logs to the Setting class
 
   Object.assign(ret, {
     getTime,
     setTime,
-    toggleInspection
+    toggleInspection,
+    init
   }); //All public methods
   return ret;
 
@@ -113,59 +119,55 @@ function Cubesat(period, altitude) {
  */
 function Setting(Three) {
   let ret = {};
-  let canvases={};//Shape {2,3}
-  let scenes={};//Shape {sim,inspect}
-  let camera,controls,renderer;
+  let canvases = {}; //Shape {2,3}
+  let scenes = {}; //Shape {sim,inspect}
+  let camera, controls, renderer;
 
   /**
    * Initializes a Threejs environment without rendering.
    * @param canvas3d {Object} - A Canvas element into which to draw the 3D scene
    * @param context2d {Object} - A Canvas element into which to draw the 2D logs and info
    */
-  function init(canvas3d,canvas2d){
-    if(canvas3d) canvases[3]=canvas3d;
-    if(canvas2d) canvases[2]=canvas2d;
-    renderer=new THREE.WebGLRenderer({
-      canvas:canvas3d
+  function init(canvas3d, canvas2d) {
+    if (canvas3d) canvases[3] = canvas3d;
+    if (canvas2d) canvases[2] = canvas2d;
+    renderer = new THREE.WebGLRenderer({
+      canvas: canvas3d
     });
-    let loader=new THREE.TextureLoader();
-    scenes.sim=new THREE.Scene();
-    camera=new THREE.PerspectiveCamera(45,canvas3d.width/canvas3d.height,1,2000);
-    controls=new THREE.OrbitControls(camera,canvas3d);//Maybe use something different later, without panning and with strict limits
-    let pointLight=new THREE.PointLight(0xCCCCCC);
-    Object.assign(pointLight.position,{x:0,y:0,z:0});
-    let hemLight=new THREE.HemisphereLight(0x888888,0x555555,1);
-    hemLight.position.set(0,0,0).normalize();
-    //Stars.jpg is from https://4.bp.blogspot.com/-t4nMV8Q9KpE/T8SNLkNyAiI/AAAAAAAAADM/gTAU2ovZm7Q/s1600/01.jpg
-    let background=loader.load("../public/stars.jpg",function ( texture ) {
-        var img = texture.image;
-        bgWidth= img.width;
-        bgHeight = img.height;
-        resize();
-    });
-    background.wrapS=THREE.MirroredRepeatWrapping;
-    background.wrapT=THREE.MirroredRepeatWrapping;
-    scenes.sim.background=background;
+    let loader = new THREE.TextureLoader();
+    scenes.sim = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, canvas3d.width / canvas3d.height, 1, 2000);
+    controls = new THREE.OrbitControls(camera, canvas3d); //Maybe use something different later, without panning and with strict limits
+    let pointLight = new THREE.PointLight(0xCCCCCC);
+    let hemLight = new THREE.HemisphereLight(0x888888, 0x555555, 1);
+    hemLight.position.set(0, 0, 0).normalize();
+    let earth = (Earth(60 * 60 * 24, 100));
+    scenes.sim.add(earth.init());
+    let cubesat = Cubesat();
+    scenes.sim.add(cubesat.init());
   }
 
   /**
    * Renders the scene once.
    */
-  function render(){
-    renderer.render(scenes.sim,camera);
+  function render() {
+    renderer.render(scenes.sim, camera);
   }
 
   //TODO Add Threejs stuff, init stuff, control stuff, etc.
 
-  Object.assign(ret, {init,render}); //All public methods
+  Object.assign(ret, {
+    init,
+    render
+  }); //All public methods
   return ret;
 }
 
 /**
  * Describes the Ionosonde class, which handles sending and receiving of soundings
  * @constructor
- * @param long {Number} - A multiple of PI which determines the longitude of the ionosonde
- * @param lat {Number} - A multiple of PI which determines the latitude of the ionosonde
+ * @param long {Number} - An angle--multiple of PI--which determines the longitude of the ionosonde
+ * @param lat {Number} - An angle--multiple of PI--which determines the latitude of the ionosonde
  */
 function Ionosonde(long, lat) {
   let ret = {};
@@ -183,7 +185,7 @@ function Ionosonde(long, lat) {
   /**
    * Just a simple getter function.
    */
-  function getTime(){
+  function getTime() {
     return time;
   }
 
@@ -191,18 +193,21 @@ function Ionosonde(long, lat) {
    * Receives soundings.
    * @param signals {Array} - The array of signals sent, where each signal is an object of shape {transmitTime {Number},coords {Array[Number]},altitude {Number},direction {Number},frequency {Number}}
    */
-  function receiveSounding(signals){
-    for(i in signals){
-      let signal=signals[i];
+  function receiveSounding(signals) {
+    for (i in signals) {
+      let signal = signals[i];
 
-      if(direction===-1){
+      if (direction === -1) {
         //Check to see with ray-tracing (possibly) if should receive the signal
-        logSignal(signal.frequency,time-signal.transmitTime);
+        logSignal(signal.frequency, time - signal.transmitTime);
       }
     }
   }
 
-  Object.assign(ret, {setTime,getTime});
+  Object.assign(ret, {
+    setTime,
+    getTime
+  });
   return ret;
 }
 
@@ -211,26 +216,25 @@ function Ionosonde(long, lat) {
  * @constructor
  * @param origin {Object} - An object of shape {longitude {Number},latitude {Number}} that represents the source of the wave.
  */
-function Wave(origin){
-  let ret={};
-  let locus=[];
-  let time=0;
+function Wave(origin) {
+  let ret = {};
+  let locus = [];
+  let time = 0;
 
   /**
    * Calculates the locus of the wave's current location after refraction in the ionosphere
    * @param t {Number} - The time to which to set the wave.
    */
   function setTime(t) {
-    if(t===undefined) t=time+1;
+    if (t === undefined) t = time + 1;
 
     //Calculate from the beginning of time
-    let newLocus=new Array(RESOLUTION).fill(origin);
+    let newLocus = new Array(RESOLUTION).fill(origin);
 
-    for(point of newLocus){
-    }
+    for (point of newLocus) {}
 
 
-    time=t;
+    time = t;
     return t;
 
   }
@@ -238,33 +242,67 @@ function Wave(origin){
   /**
    * Gets the time of the wave.
    */
-  function getTime(){
+  function getTime() {
     return time;
   }
 
-  Object.assign(ret,{setTime,getTime});
+  Object.assign(ret, {
+    setTime,
+    getTime
+  });
   return ret;
 }
 
 /**
  * Describes the Ionosphere class which renders and provides collision detection for the ionosphere.
+ * @constructor
  * @param radius {Number} - The altitude of the ionosphere in general
  */
-function Ionosphere(){
-  let ret={};
-  let physical;
-  const RESOLUTION=1000;
-  let [a,b,c,d]=Array(4).fill(0).map(i=>Math.round(Math.random()*50));
-  function init(scene,THREE){
-    physical=new THREE.SphereGeometry(175,100,100);
-    let material=new THREE.MeshBasicMaterial({alphaMap:"darkgray",color:0x898989});
-    physical=new THREE.Mesh(physical,material);
+function Ionosphere(radius) {
+  let ret = {};
+  let physical, locus;
+  const RESOLUTION = 1000;
+  //Init params for the ionosonde's polar graph to random values
+  let [a, b, c, d] = Array(4).fill(0).map(i => Math.floor(Math.random() * 30 - 15));
+
+  /**
+   * Calculates the radius of a certain point in the atmosphere based on the equation r=bcos(dθ)+asin(cθ)
+   * @param long {Number} - The longitude of the point to render.
+   * @param lat {Number} - The latitude of the point to render.
+   */
+  function getCoords(long, lat) {
+    let r = (theta) => b * cos(d * theta) + a * sin(c * theta);
+    return radius + r(long) + r(lat);
+  }
+
+  /**
+   * Initializes the rendered and mathematical manifestation of the ionosphere.
+   * @param scene {Object} - The scene object made by Threejs.
+   * @param THREE {Object} - The Threejs object for constructors.
+   */
+  function init(scene, THREE) {
+    physical = new THREE.SphereGeometry(175, 100, 100);
+    let material = new THREE.MeshBasicMaterial({
+      alphaMap: "darkgray",
+      color: 0x898989
+    });
+    physical = new THREE.Mesh(physical, material);
+    let ptsPerDim = Math.floor(Math.sqrt(RESOLUTION));
+    for (long = 0; long < ptsPerDim; long++) {
+      for (lat = 0; lat < ptsPerDim; lat++) {
+        locus[long * ptsPerDim][lat] = getCoords(long, lat);
+      }
+    }
+
+    //Set actual bounds
+
     return physical;
   }
+
 }
 
 
-const element=document.getElementById("scene");
-const scene=new Setting(THREE,element);
-scene.init(element,null);
+const element = document.getElementById("scene");
+const scene = new Setting(THREE, element);
+scene.init(element, null);
 scene.render();
