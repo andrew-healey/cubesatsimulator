@@ -6,6 +6,13 @@
 
 import THREE from "three/examples/js/controls/OrbitControls";
 
+import planet from './planet/planet.js';
+import {
+  Interaction
+} from 'three.interaction';
+
+import Cubesat from './cubesat.js';
+
 /**
  * Describes the Earth class, which renders the earth, rotates it, changes resolution based on processing speeds, controls ionosonde location and sounding and utilizes the github repo at mdiller/lowpoly-earth
  * @constructor
@@ -33,6 +40,11 @@ function Earth(period, radius) {
     return time;
   }
 
+  function init(scene, camera, renderer) {
+    this.earth = planet(scene, camera, renderer);
+    return this.earth;
+  }
+
   //TODO Make ionosonde control, rendering methods
 
   Object.assign(ret, {
@@ -50,8 +62,6 @@ function Earth(period, radius) {
  * @param altitude {Number} - describes the Cubesat's altitude from the center of the Earth, in Threejs units
  */
 function Cubesat(period, altitude) {
-  let ret = {};
-  let time = 0;
   let model;
 
   /**
@@ -61,9 +71,23 @@ function Cubesat(period, altitude) {
   /**
    * Gets the current time of the Cubesat - just a getter
    */
-  function init(THREE, simScene) {
+  function init(simScene) {
     //Just kinda some pseudocode
     //model=new THREE.LoadModel("cubesatModel.");
+    this.cube = new THREE.Mesh(
+      new THREE.BoxGeometry(25, 25, 25),
+      new THREE.MeshBasicMaterial({
+        color: 0x888888
+      }),
+    );
+    this.cube.cursor = 'pointer';
+    this.cube.on('mouseover', () => {
+      this.cube.material.color.setHex(0xffffff);
+    });
+    this.cube.on('mouseout', () => {
+      this.cube.material.color.setHex(0x888888);
+    });
+    this.cube.position.y = 150;
 
     setTime(0);
 
@@ -121,7 +145,20 @@ function Setting(Three) {
   let ret = {};
   let canvases = {}; //Shape {2,3}
   let scenes = {}; //Shape {sim,inspect}
-  let camera, controls, renderer;
+  let cubesat, earth, ionosphere;
+  let camera, controls, renderer, interaction, start=performance.now();
+  const SPACE_COLOR = 0x0f0f0f;
+  const SUN_COLOR = 0xffffff;
+  const AMBIENT_COLOR = 0xffffff;
+
+  function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+  }
 
   /**
    * Initializes a Threejs environment without rendering.
@@ -131,9 +168,13 @@ function Setting(Three) {
   function init(canvas3d, canvas2d) {
     if (canvas3d) canvases[3] = canvas3d;
     if (canvas2d) canvases[2] = canvas2d;
+    start = performance.now();
     renderer = new THREE.WebGLRenderer({
-      canvas: canvas3d
+      canvas: canvas3d,
+      antialias: true
     });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(SPACE_COLOR, 1);
     let loader = new THREE.TextureLoader();
     scenes.sim = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(45, canvas3d.width / canvas3d.height, 1, 2000);
@@ -141,10 +182,41 @@ function Setting(Three) {
     let pointLight = new THREE.PointLight(0xCCCCCC);
     let hemLight = new THREE.HemisphereLight(0x888888, 0x555555, 1);
     hemLight.position.set(0, 0, 0).normalize();
-    let earth = (Earth(60 * 60 * 24, 100));
-    scenes.sim.add(earth.init());
-    let cubesat = Cubesat();
-    scenes.sim.add(cubesat.init());
+    earth = (Earth(60 * 60 * 24, 100));
+    let earthObject = earth.init();
+    scenes.sim.add(earthObject);
+    cubesat = Cubesat(scene, earthObject);
+    addStars();
+    scenes.sim.add(cubesat.init(scene));
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    cubesat.update(performance.now() - start);
+
+    renderer.render(scene, camera);
+  }
+
+  function addStars() {
+    let starsGeometry = new THREE.Geometry();
+
+    for (let i = 0; i < 10000; i++) {
+
+      var star = new THREE.Vector3();
+      star.x = THREE.Math.randFloatSpread(1500);
+      star.y = THREE.Math.randFloatSpread(1500);
+      star.z = THREE.Math.randFloatSpread(1500);
+
+      starsGeometry.vertices.push(star);
+    }
+
+    let starsMaterial = new THREE.PointsMaterial({
+      color: 0xaaaaaa
+    });
+
+    let starField = new THREE.Points(starsGeometry, starsMaterial);
+
   }
 
   /**
@@ -158,7 +230,8 @@ function Setting(Three) {
 
   Object.assign(ret, {
     init,
-    render
+    render,
+    animate
   }); //All public methods
   return ret;
 }
@@ -278,9 +351,8 @@ function Ionosphere(radius) {
   /**
    * Initializes the rendered and mathematical manifestation of the ionosphere.
    * @param scene {Object} - The scene object made by Threejs.
-   * @param THREE {Object} - The Threejs object for constructors.
    */
-  function init(scene, THREE) {
+  function init(scene) {
     physical = new THREE.SphereGeometry(175, 100, 100);
     let material = new THREE.MeshBasicMaterial({
       alphaMap: "darkgray",
@@ -303,6 +375,6 @@ function Ionosphere(radius) {
 
 
 const element = document.getElementById("scene");
-const scene = new Setting(THREE, element);
+const scene = new Setting(element);
 scene.init(element, null);
-scene.render();
+scene.animate();

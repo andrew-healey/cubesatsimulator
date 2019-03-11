@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-{}
-=======
 {
   "name": "earthcubesat",
   "version": "1.0.0",
@@ -15,4 +12,3 @@
     "three.interaction": "^0.2.2"
   }
 }
->>>>>>> 88afbb4bfde9bdf673c137c2b594f3ff1afa5068
