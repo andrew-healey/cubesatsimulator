@@ -4,9 +4,13 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "sass": "^1.17.2"
+    "fs": "0.0.1-security",
+    "sass": "^1.17.2",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
   },
   "dependencies": {
+    "parcel-bundler": "^1.12.2",
     "three": "^0.102.1",
     "three-orbitcontrols": "^2.102.1",
     "three.interaction": "^0.2.2"

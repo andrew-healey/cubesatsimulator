@@ -6,14 +6,20 @@ import {
 
 import Earth from './earth.js';
 import Cubesat from './cubesat.js';
+import Ionosphere from './ionosphere.js';
+import Ionosonde from './ionosonde.js';
 
 let renderer, scene, camera, controls, interaction, clock, start = performance.now();
-let earth, cubesat;
+let earth, cubesat, ionosphere, ionosonde;
 let container = document.getElementById('container');
+
+let waves=[];
 
 const SPACE_COLOR = 0x0f0f0f;
 const SUN_COLOR = 0xffffff;
 const AMBIENT_COLOR = 0xffffff;
+
+const IONOSPHERE_RESOLUTION = 100;
 
 function onWindowResize() {
 
@@ -65,15 +71,22 @@ function init() {
     scene.add(starField);
     earth = new Earth(scene, camera, renderer);
     cubesat = new Cubesat(scene, earth.earth);
-    // camera.lookAt(e.earth.position)
+    ionosphere = new Ionosphere(scene, IONOSPHERE_RESOLUTION, 1.5); //1.5 stands for altitude of the ionosphere in general.
+    ionosonde = new Ionosonde(scene, earth,ionosphere,1/4,0,waves);
+    let earthCore=new THREE.Mesh(new THREE.SphereGeometry(0.1),new THREE.MeshBasicMaterial({color:0x00BB00}));
+    scene.add(earthCore);
 
     renderer.render(scene, camera);
 }
 
 function animate() {
     requestAnimationFrame(animate);
-
-    cubesat.update(performance.now() - start);
+    let dt=performance.now() - start
+    cubesat.update(dt);
+    ionosonde.update(dt);
+    for(wave of waves){
+        wave.update(dt);
+    }
 
     renderer.render(scene, camera);
 }

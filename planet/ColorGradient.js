@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {
     readFileSync
-} from 'fs'
+} from 'fs';
 
 const color_data = readFileSync('./planet/color_gradients/GMT_simple.pg', 'utf-8')
 

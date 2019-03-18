@@ -146,7 +146,7 @@ function Setting(Three) {
   let canvases = {}; //Shape {2,3}
   let scenes = {}; //Shape {sim,inspect}
   let cubesat, earth, ionosphere;
-  let camera, controls, renderer, interaction, start=performance.now();
+  let camera, controls, renderer, interaction, start = performance.now();
   const SPACE_COLOR = 0x0f0f0f;
   const SUN_COLOR = 0xffffff;
   const AMBIENT_COLOR = 0xffffff;
@@ -333,10 +333,27 @@ function Wave(origin) {
  */
 function Ionosphere(radius) {
   let ret = {};
-  let physical, locus;
-  const RESOLUTION = 1000;
+  const randomNumArr = (l, bottom, top) => new Array(l).fill().map(i => Math.floor(Math.random() * (top - bottom)) - bottom);
+  const [a, b] = randomNumArr(2, -2, 2);
+  const [c, d] = randomNumArr(2, -5, 5);
+  const getRadius = (lat, long, scale) => {
+    lat = Math.PI / 2 - Math.PI * 2 * lat;
+    long = Math.PI * 2 * long;
+    let r = theta => b * Math.cos(d * theta) + a * Math.sin(c * theta);
+    return r(long) * r(lat) / scale;
+  }
+  const getCoords = (radius, lat, long) => {
+    lat = Math.PI / 2 - Math.PI * lat;
+    long = Math.PI * 2 * long;
+    return ({
+      x: radius * Math.cos(long) * Math.abs(Math.cos(lat)),
+      z: radius * Math.sin(long) * Math.abs(Math.cos(lat)),
+      y: radius * Math.sin(lat)
+    });
+  };
+  let geom, locus;
+  const RESOLUTION = 100;
   //Init params for the ionosonde's polar graph to random values
-  let [a, b, c, d] = Array(4).fill(0).map(i => Math.floor(Math.random() * 30 - 15));
 
   /**
    * Calculates the radius of a certain point in the atmosphere based on the equation r=bcos(dθ)+asin(cθ)
@@ -352,23 +369,82 @@ function Ionosphere(radius) {
    * Initializes the rendered and mathematical manifestation of the ionosphere.
    * @param scene {Object} - The scene object made by Threejs.
    */
-  function init(scene) {
-    physical = new THREE.SphereGeometry(175, 100, 100);
-    let material = new THREE.MeshBasicMaterial({
-      alphaMap: "darkgray",
-      color: 0x898989
-    });
-    physical = new THREE.Mesh(physical, material);
-    let ptsPerDim = Math.floor(Math.sqrt(RESOLUTION));
-    for (long = 0; long < ptsPerDim; long++) {
-      for (lat = 0; lat < ptsPerDim; lat++) {
-        locus[long * ptsPerDim][lat] = getCoords(long, lat);
+  function genIonosphere(res, altitude) {
+    let physical = new THREE.BufferGeometry();
+    let vectors = [];
+    let colors = [];
+    let lastRow, newRow, r;
+    //Res is the number of divisions into which the ionosphere is divided in terms of latitude
+    const meshRows = () => {
+      for (let colNum = 0; colNum < res; colNum++) {
+        console.log("length of lastRow", lastRow.length);
+        let oldPoints = lastRow.slice(colNum, colNum + 2);
+        let newPoints = newRow.slice(colNum, colNum + 2);
+        let oldCoords = oldPoints.reduce((last, next) => [...last, ...["x", "y", "z"].map(e => next.position[e])], []);
+        let newCoords = newPoints.reduce((last, next) => [...last, ...["x", "y", "z"].map(e => next.position[e])], []);
+        let oldColors = oldPoints.reduce((last, next) => [...last, ...next.color], []);
+        let newColors = newPoints.reduce((last, next) => [...last, ...next.color], []);
+        //TODO fix the number of things added
+        if (Math.random() < 0.05) {
+          console.log("coords", oldCoords, newCoords);
+        }
+        let toAdd = [...oldCoords, ...newCoords.slice(0, 3), ...newCoords, ...oldCoords.slice(3, 6)];
+        console.log("toAdd", toAdd);
+        let colorsToAdd = [...oldColors, ...newColors.slice(0, 4), ...newColors, ...oldColors.slice(4, 8)];
+        console.log(colorsToAdd);
+        vectors.push(...toAdd);
+        for (let i = 0; i < 6; i++) colors.push(...colorsToAdd);
       }
     }
-
-    //Set actual bounds
-
-    return physical;
+    for (let rowNum = 0; rowNum <= res; rowNum++) {
+      lastRow = newRow;
+      newRow = [];
+      for (let colNum = 0; colNum < res; colNum++) {
+        let lat = rowNum / res;
+        let long = colNum / res;
+        let r = getRadius(lat, long, 5) + 40;
+        let c = getCoords(r, lat, long);
+        //r=255/(1+Math.e^(-r/4));
+        newRow.push({
+          position: c,
+          color: [(r + 40) * 4, 255, 255, (r + 40) * 4]
+        });
+      }
+      newRow.push(...newRow.slice(0, 1));
+      if (lastRow === undefined) {
+        console.log("darn");
+        continue;
+      }
+      meshRows();
+    }
+    // newRow=(i=>new Array(res).fill(...i))(getCoords())
+    // meshRows();
+    let colorAttribute = new THREE.Uint8BufferAttribute(colors, 4);
+    colorAttribute.normalized = true;
+    console.log(vectors);
+    physical.addAttribute("position", new THREE.Float32BufferAttribute(vectors, 3));
+    physical.addAttribute("color", colorAttribute);
+    /*var material = new THREE.RawShaderMaterial( {
+					uniforms: {
+						time: { value: 1.0 }
+					},
+					side: THREE.DoubleSide,
+					transparent: true
+                } );*/
+    let material = new THREE.RawShaderMaterial({
+      uniforms: {
+        time: {
+          value: 1.0
+        }
+      },
+      vertexShader: document.getElementById('vertexShader').textContent,
+      fragmentShader: document.getElementById('fragmentShader').textContent,
+      side: THREE.DoubleSide,
+      transparent: true
+    });
+    geom = new THREE.Mesh(physical, material);
+    //scene.add(geom);
+    return geom;
   }
 
 }
