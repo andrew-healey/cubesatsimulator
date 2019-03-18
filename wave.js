@@ -16,8 +16,8 @@ export default class Wave {
             let coords = this.getCoords(1, ret.lat, ret.long);
             ret = {
                 //Makeshift orientation - How do I do directions?
-                direction: ret,
-                ...ret,
+                direction: coords,
+                ...coords,
                 visible: true
             };
             return ret;
@@ -56,7 +56,7 @@ export default class Wave {
                         point.origin = sphereHit[0].distance;
                         distanceToTravel -= sphereHit[0].distance;
                         //How to do this? This code is just a placeholder
-                        let newDirection = direction;
+                        let newDirection = direction.addScaledVector(sphereHit[0].point.negate(),2);
                         caster.set(sphereHit[0].point, newDirection);
                     }
                     distanceToTravel = 0;
@@ -74,7 +74,7 @@ export default class Wave {
         let points = [];
         for (row of locus) {
             for (point of row) {
-
+              for(let i=0;i<3;i++) points.push(...point.position)
             }
         }
         buf.addAttribute(new THREE.Float32BufferAttribute(points, 3));

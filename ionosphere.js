@@ -38,7 +38,8 @@ export default class Ionosonde {
                 let toAdd = [...oldCoords, ...newCoords.slice(0, 3), ...newCoords, ...oldCoords.slice(3, 6)];
                 let colorsToAdd = [...oldColors, ...newColors.slice(0, 4), ...newColors, ...oldColors.slice(4, 8)];
                 this.vectors.push(...toAdd);
-                for (let i = 0; i < 6; i++) this.colors.push(...colorsToAdd);
+              //for (let i = 0; i < 6; i++)
+                this.colors.push(...colorsToAdd);
             }
         }
         for (let rowNum = 0; rowNum <= res; rowNum++) {
@@ -50,9 +51,10 @@ export default class Ionosonde {
                 let r = this.getRadius(lat, long) + this.altitude;
                 let c = this.getCoords(r, lat, long);
                 //r=255/(1+Math.e^(-r/4));
+                let heat=155/(1+100*Math.pow(Math.E,-4*r))+100;
                 newRow.push({
                     position: c,
-                    color: [r*255, 255, 255, r*10]
+                  color: [heat, heat, heat, 10]
                 });
             }
             newRow.push(...newRow.slice(0, 1));
@@ -79,7 +81,6 @@ export default class Ionosonde {
         this.ionosonde = new THREE.Mesh(physical, this.material);
         this.scene=scene;
         scene.add(this.ionosonde);
-        console.log("added");
     }
 
 }
