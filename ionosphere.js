@@ -50,7 +50,7 @@ export default class Ionosonde {
                 let r = this.getRadius(lat, long,5) + this.altitude;
                 let c = this.getCoords(r, lat, long);
                 let heat=255/(1+10*Math.pow(Math.E,-160*(r-this.altitude)));
-                newRow.push({position:c,color:[heat,0,255-heat,51*1.5]});
+                newRow.push({position:c,color:[heat,0,255-heat,51]});
             }
             newRow.push(...newRow.slice(0, 1));
             if (lastRow === undefined) {
