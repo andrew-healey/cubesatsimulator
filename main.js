@@ -19,7 +19,7 @@ const SPACE_COLOR = 0x0f0f0f;
 const SUN_COLOR = 0xffffff;
 const AMBIENT_COLOR = 0xffffff;
 
-const IONOSPHERE_RESOLUTION = 100;
+const IONOSPHERE_RESOLUTION = 200;
 
 function onWindowResize() {
 
