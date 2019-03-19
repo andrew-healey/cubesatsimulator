@@ -31,7 +31,7 @@ export default class Wave {
             vertexShader: document.getElementById('pointvertexshader').textContent,
             fragmentShader: document.getElementById('pointfragmentshader').textContent
         });
-        this.update();
+        //this.update();
     }
     update(dt) {
         //TODO implement hitting ionosondes
@@ -65,6 +65,8 @@ export default class Wave {
             }
             locus.push(row);
         }
+        this.locus=locus;
+        this.render();
     }
     isTouching() {
 

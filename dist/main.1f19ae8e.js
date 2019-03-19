@@ -41595,7 +41595,7 @@ function () {
         var heat = 255 / (1 + 10 * Math.pow(Math.E, -160 * (_r - this.altitude)));
         newRow.push({
           position: c,
-          color: [heat, 0, 255 - heat, 51 * 1.5]
+          color: [heat, 0, 255 - heat, 51]
         });
       }
 
@@ -41768,8 +41768,7 @@ function () {
       },
       vertexShader: document.getElementById('pointvertexshader').textContent,
       fragmentShader: document.getElementById('pointfragmentshader').textContent
-    });
-    this.update();
+    }); //this.update();
   }
 
   _createClass(Wave, [{
@@ -41853,6 +41852,9 @@ function () {
           }
         }
       }
+
+      this.locus = locus;
+      this.render();
     }
   }, {
     key: "isTouching",
@@ -41955,6 +41957,8 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -41971,6 +41975,7 @@ function () {
     this.radius = 1;
     this.earth = earth;
     this.waves = waves;
+    console.log(_typeof(this.waves));
     this.period = 0;
     this.pos = this.getCoords(this.radius, lat, long);
     this.model = new THREE.BufferGeometry();
@@ -41989,6 +41994,7 @@ function () {
     this.geom.position.z = this.pos.z;
     this.geom.lookAt(new THREE.Vector3(0, 0, 0));
     scene.add(this.geom);
+    this.waves.push(new _wave.default(this.earth, this.ionosphere, this.lat, this.long, 100, Math.PI / 4));
   }
 
   _createClass(Ionosonde, [{
@@ -42013,15 +42019,34 @@ function () {
 
       if (this.period >= 2000) {
         this.period %= 2000; //Sound
-        //this.waves.push(new Wave(this.earth, this.ionosphere, this.lat, this.long, 100, Math.PI / 4));
       }
-      /*for (wave of this.waves) {
-      if (!wave) return;
-      if (wave.isTouching(this)) {
-        this.geom.material.color.set(0x00FF00);
-      }
-      }*/
 
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.waves[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var wave = _step.value;
+
+          if (wave.isTouching(this)) {
+            this.geom.material.color.set(0x00FF00);
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
     }
   }]);
 
@@ -42063,7 +42088,7 @@ var waves = [];
 var SPACE_COLOR = 0x0f0f0f;
 var SUN_COLOR = 0xffffff;
 var AMBIENT_COLOR = 0xffffff;
-var IONOSPHERE_RESOLUTION = 200;
+var IONOSPHERE_RESOLUTION = 100;
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -42106,6 +42131,7 @@ function init() {
   cubesat = new _cubesat.default(scene, earth.earth);
   ionosphere = new _ionosphere.default(scene, IONOSPHERE_RESOLUTION, 1.5); //1.5 stands for altitude of the ionosphere in general.
 
+  console.log(waves instanceof Array);
   ionosonde = new _ionosonde.default(scene, earth, ionosphere, 1 / 4, 0, waves);
   var earthCore = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({
     color: 0x00BB00
@@ -42121,7 +42147,7 @@ function animate() {
   ionosonde.update(dt);
 
   for (var _i = 0; _i < waves.length; _i++) {
-    wave = waves[_i];
+    var wave = waves[_i];
     wave.update(dt);
   }
 
@@ -42158,7 +42184,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60185" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62228" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

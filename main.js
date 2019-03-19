@@ -19,7 +19,7 @@ const SPACE_COLOR = 0x0f0f0f;
 const SUN_COLOR = 0xffffff;
 const AMBIENT_COLOR = 0xffffff;
 
-const IONOSPHERE_RESOLUTION = 200;
+const IONOSPHERE_RESOLUTION = 100;
 
 function onWindowResize() {
 
@@ -72,6 +72,7 @@ function init() {
     earth = new Earth(scene, camera, renderer);
     cubesat = new Cubesat(scene, earth.earth);
     ionosphere = new Ionosphere(scene, IONOSPHERE_RESOLUTION, 1.5); //1.5 stands for altitude of the ionosphere in general.
+    console.log(waves instanceof Array);
     ionosonde = new Ionosonde(scene, earth,ionosphere,1/4,0,waves);
     let earthCore=new THREE.Mesh(new THREE.SphereGeometry(0.1),new THREE.MeshBasicMaterial({color:0x00BB00}));
     scene.add(earthCore);
@@ -84,7 +85,7 @@ function animate() {
     let dt=performance.now() - start
     cubesat.update(dt);
     ionosonde.update(dt);
-    for(wave of waves){
+    for(let wave of waves){
         wave.update(dt);
     }
 
