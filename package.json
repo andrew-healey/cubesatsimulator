@@ -10,6 +10,7 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
+    "hsv2rgb": "^1.1.0",
     "parcel-bundler": "^1.12.2",
     "three": "^0.102.1",
     "three-orbitcontrols": "^2.102.1",

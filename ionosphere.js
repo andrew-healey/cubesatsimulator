@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import hsv from "hsv2rgb";
 export default class Ionosonde {
     randomNumArr(l, bottom, top) {
         return new Array(l).fill().map(i => Math.floor(Math.random() * (top - bottom)) - bottom);
@@ -22,6 +23,7 @@ export default class Ionosonde {
         [this.a, this.b] = this.randomNumArr(2, -2, 2);
         [this.c, this.d] = this.randomNumArr(2, -5, 5);
         let physical = new THREE.BufferGeometry();
+                let color=new THREE.Color();
         this.altitude=altitude;
         this.vectors = [];
         this.colors = [];
@@ -50,7 +52,8 @@ export default class Ionosonde {
                 let r = this.getRadius(lat, long,5) + this.altitude;
                 let c = this.getCoords(r, lat, long);
                 let heat=255/(1+10*Math.pow(Math.E,-160*(r-this.altitude)));
-                newRow.push({position:c,color:[heat,0,255-heat,51]});
+                let color=hsv(heat,127.5,127.5,[0,0,0,51])
+                newRow.push({position:c,color});
             }
             newRow.push(...newRow.slice(0, 1));
             if (lastRow === undefined) {
@@ -82,7 +85,7 @@ export default class Ionosonde {
             side: THREE.DoubleSide,
             transparent: true
         });
-        this.ionosonde= new THREE.Mesh(physical, material);
+        this.ionosphere= new THREE.Mesh(physical, material);
         /*
         const meshRows = () => {
             for (let colNum = 0; colNum < res; colNum++) {
@@ -138,7 +141,7 @@ export default class Ionosonde {
         this.ionosonde = new THREE.Mesh(physical, this.material);
         */
         this.scene=scene;
-        scene.add(this.ionosonde);
+        scene.add(this.ionosphere);
     }
 
 }

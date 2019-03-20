@@ -8,7 +8,7 @@ export default class Wave {
         this.lat = lat;
         this.long = long;
         this.lifetime = 0;
-        this.startLocus = new Array(resolution).fill(0).map((i, rowNum) => new Array(resolution).fill(0).map((e, ptNum) => {
+        this.locus = new Array(resolution).fill(0).map((i, rowNum) => new Array(resolution).fill(0).map((e, ptNum) => {
             let ret = {
                 lat: lat + directivity * (rowNum / this.resolution - 0.5),
                 long: long + directivity * (ptNum / this.resolution / 0.5),
@@ -31,42 +31,41 @@ export default class Wave {
             vertexShader: document.getElementById('pointvertexshader').textContent,
             fragmentShader: document.getElementById('pointfragmentshader').textContent
         });
-        //this.update();
+        // this.update();
     }
     update(dt) {
+        //Until it stops crashing, use this
+        return;
         //TODO implement hitting ionosondes
+        if(this.stop){
+            return;
+        }
+        else if(dt<1000) this.stop=true;
         this.lifetime += dt;
         let caster = new THREE.Raycaster(this.origin, this.origin, 0.1, 10);
-        this.locus = [];
-        for (row of this.locus) {
-            let row = [];
-            for (point of row) {
+        for (let row of this.locus) {
+            for (let point of row) {
                 let distanceToTravel = this.lifetime / 10000;
                 if (!point.visible) distanceToTravel = 0;
                 while (distanceToTravel > 0) {
-                    caster.set(point.origin, point.direction);
-                    let earthHit = caster.intersectObject(this.earth);
-                    if (earthHit.length > 0) {
-                        //Destroy point
-                        point.visible = false;
-                        break;
-                    }
-                    let sphereHit = caster.intersectObject(this.ionosphere);
+                    let earthHit = caster.intersectObject(this.earth.earth);
+                    console.log(earthHit);
+                    let sphereHit = caster.intersectObject(this.ionosphere.ionosphere);
                     if (sphereHit.length > 0 && sphereHit[0].distance <= this.lifetime) {
                         point.origin = sphereHit[0].distance;
                         distanceToTravel -= sphereHit[0].distance;
                         //How to do this? This code is just a placeholder
                         let newDirection = direction.addScaledVector(sphereHit[0].point.negate(),2);
                         caster.set(sphereHit[0].point, newDirection);
+                        continue;
                     }
-                    distanceToTravel = 0;
+                    break;
                 }
-                locus.push(point);
+                row.push(point);
             }
-            locus.push(row);
+            this.locus.push(row);
         }
-        this.locus=locus;
-        this.render();
+        // this.render();
     }
     isTouching() {
 
@@ -74,13 +73,15 @@ export default class Wave {
     render() {
         let buf = new THREE.BufferGeometry();
         let points = [];
-        for (row of locus) {
-            for (point of row) {
-              for(let i=0;i<3;i++) points.push(...point.position)
+        for (let row of this.locus) {
+            for (let point of row) {
+                console.log(points.x,points.y,points.z);
+              for(let i=0;i<3;i++) points.push(points.x,point.y,point.z);
             }
         }
-        buf.addAttribute(new THREE.Float32BufferAttribute(points, 3));
+        buf.addAttribute("position",new THREE.Float32BufferAttribute(points, 3));
         this.geom = new THREE.Points(buf, this.material);
+        console.log(this.geom);
     }
     getCoords(radius, lat, long) {
         lat = Math.PI / 2 - Math.PI * lat;

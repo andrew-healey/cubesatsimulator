@@ -41453,7 +41453,52 @@ function () {
 }();
 
 exports.default = Cubesat;
-},{"three":"node_modules/three/build/three.module.js","three.interaction":"node_modules/three.interaction/build/three.interaction.module.js"}],"ionosphere.js":[function(require,module,exports) {
+},{"three":"node_modules/three/build/three.module.js","three.interaction":"node_modules/three.interaction/build/three.interaction.module.js"}],"node_modules/hsv2rgb/hsv2rgb.js":[function(require,module,exports) {
+// based on http://www.kasperkamperman.com/blog/arduino/arduino-programming-hsb-to-rgb/
+// which is based on http://www.codeproject.com/miscctrl/CPicker.asp
+var TAU = Math.PI*2;
+var round = Math.round;
+var min = Math.min;
+var max = Math.max;
+var ceil = Math.ceil;
+module.exports = hsv2rgb;
+
+function set(r, g, b, out) {
+  out[0] = round(r * 255);
+  out[1] = round(g * 255);
+  out[2] = round(b * 255);
+}
+
+function clamp(v, l, u) {
+  return max(l, min(v, u));
+}
+
+function hsv2rgb(h, s, v, out) {
+  out = out || [0, 0, 0];
+  h = h % 360;
+  s = clamp(s, 0, 1);
+  v = clamp(v, 0, 1);
+
+  // Grey
+  if (!s) {
+    out[0] = out[1] = out[2] = ceil(v * 255);
+  } else {
+    var b = ((1 - s) * v);
+    var vb = v - b;
+    var hm = h % 60;
+    switch((h/60)|0) {
+      case 0: set(v, vb * h / 60 + b, b, out); break;
+      case 1: set(vb * (60 - hm) / 60 + b, v, b, out); break;
+      case 2: set(b, v, vb * hm / 60 + b, out); break;
+      case 3: set(b, vb * (60 - hm) / 60 + b, v, out); break;
+      case 4: set(vb * hm / 60 + b, b, v, out); break;
+      case 5: set(v, b, vb * (60 - hm) / 60 + b, out); break;
+    }
+  }
+  return out;
+}
+
+},{}],"ionosphere.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41462,6 +41507,10 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 var THREE = _interopRequireWildcard(require("three"));
+
+var _hsv2rgb = _interopRequireDefault(require("hsv2rgb"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
@@ -41543,6 +41592,7 @@ function () {
     this.c = _this$randomNumArr4[0];
     this.d = _this$randomNumArr4[1];
     var physical = new THREE.BufferGeometry();
+    var color = new THREE.Color();
     this.altitude = altitude;
     this.vectors = [];
     this.colors = [];
@@ -41593,9 +41643,12 @@ function () {
 
         var c = this.getCoords(_r, lat, long);
         var heat = 255 / (1 + 10 * Math.pow(Math.E, -160 * (_r - this.altitude)));
+
+        var _color = (0, _hsv2rgb.default)(heat, 127.5, 127.5, [0, 0, 0, 51]);
+
         newRow.push({
           position: c,
-          color: [heat, 0, 255 - heat, 51]
+          color: _color
         });
       }
 
@@ -41633,7 +41686,7 @@ function () {
       side: THREE.DoubleSide,
       transparent: true
     });
-    this.ionosonde = new THREE.Mesh(physical, material);
+    this.ionosphere = new THREE.Mesh(physical, material);
     /*
     const meshRows = () => {
         for (let colNum = 0; colNum < res; colNum++) {
@@ -41690,14 +41743,14 @@ function () {
     */
 
     this.scene = scene;
-    scene.add(this.ionosonde);
+    scene.add(this.ionosphere);
   }
 
   return Ionosonde;
 }();
 
 exports.default = Ionosonde;
-},{"three":"node_modules/three/build/three.module.js"}],"wave.js":[function(require,module,exports) {
+},{"three":"node_modules/three/build/three.module.js","hsv2rgb":"node_modules/hsv2rgb/hsv2rgb.js"}],"wave.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41708,14 +41761,6 @@ exports.default = void 0;
 var THREE = _interopRequireWildcard(require("three"));
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
@@ -41742,7 +41787,7 @@ function () {
     this.lat = lat;
     this.long = long;
     this.lifetime = 0;
-    this.startLocus = new Array(resolution).fill(0).map(function (i, rowNum) {
+    this.locus = new Array(resolution).fill(0).map(function (i, rowNum) {
       return new Array(resolution).fill(0).map(function (e, ptNum) {
         var ret = {
           lat: lat + directivity * (rowNum / _this.resolution - 0.5),
@@ -41768,45 +41813,42 @@ function () {
       },
       vertexShader: document.getElementById('pointvertexshader').textContent,
       fragmentShader: document.getElementById('pointfragmentshader').textContent
-    }); //this.update();
+    }); // this.update();
   }
 
   _createClass(Wave, [{
     key: "update",
     value: function update(dt) {
-      //TODO implement hitting ionosondes
+      //Until it stops crashing, use this
+      return; //TODO implement hitting ionosondes
+
+      if (this.stop) {
+        return;
+      } else if (dt < 1000) this.stop = true;
+
       this.lifetime += dt;
       var caster = new THREE.Raycaster(this.origin, this.origin, 0.1, 10);
-      this.locus = [];
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
       try {
         for (var _iterator = this.locus[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          _row = _step.value;
-          var _row = [];
+          var row = _step.value;
           var _iteratorNormalCompletion2 = true;
           var _didIteratorError2 = false;
           var _iteratorError2 = undefined;
 
           try {
-            for (var _iterator2 = _row[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              point = _step2.value;
+            for (var _iterator2 = row[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var point = _step2.value;
               var distanceToTravel = this.lifetime / 10000;
               if (!point.visible) distanceToTravel = 0;
 
               while (distanceToTravel > 0) {
-                caster.set(point.origin, point.direction);
-                var earthHit = caster.intersectObject(this.earth);
-
-                if (earthHit.length > 0) {
-                  //Destroy point
-                  point.visible = false;
-                  break;
-                }
-
-                var sphereHit = caster.intersectObject(this.ionosphere);
+                var earthHit = caster.intersectObject(this.earth.earth);
+                console.log(earthHit);
+                var sphereHit = caster.intersectObject(this.ionosphere.ionosphere);
 
                 if (sphereHit.length > 0 && sphereHit[0].distance <= this.lifetime) {
                   point.origin = sphereHit[0].distance;
@@ -41814,12 +41856,13 @@ function () {
 
                   var newDirection = direction.addScaledVector(sphereHit[0].point.negate(), 2);
                   caster.set(sphereHit[0].point, newDirection);
+                  continue;
                 }
 
-                distanceToTravel = 0;
+                break;
               }
 
-              locus.push(point);
+              row.push(point);
             }
           } catch (err) {
             _didIteratorError2 = true;
@@ -41836,8 +41879,9 @@ function () {
             }
           }
 
-          locus.push(_row);
-        }
+          this.locus.push(row);
+        } // this.render();
+
       } catch (err) {
         _didIteratorError = true;
         _iteratorError = err;
@@ -41852,9 +41896,6 @@ function () {
           }
         }
       }
-
-      this.locus = locus;
-      this.render();
     }
   }, {
     key: "isTouching",
@@ -41869,18 +41910,19 @@ function () {
       var _iteratorError3 = undefined;
 
       try {
-        for (var _iterator3 = locus[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          row = _step3.value;
+        for (var _iterator3 = this.locus[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var row = _step3.value;
           var _iteratorNormalCompletion4 = true;
           var _didIteratorError4 = false;
           var _iteratorError4 = undefined;
 
           try {
             for (var _iterator4 = row[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              point = _step4.value;
+              var point = _step4.value;
+              console.log(points.x, points.y, points.z);
 
               for (var i = 0; i < 3; i++) {
-                points.push.apply(points, _toConsumableArray(point.position));
+                points.push(points.x, point.y, point.z);
               }
             }
           } catch (err) {
@@ -41913,8 +41955,9 @@ function () {
         }
       }
 
-      buf.addAttribute(new THREE.Float32BufferAttribute(points, 3));
+      buf.addAttribute("position", new THREE.Float32BufferAttribute(points, 3));
       this.geom = new THREE.Points(buf, this.material);
+      console.log(this.geom);
     }
   }, {
     key: "getCoords",
@@ -42071,6 +42114,8 @@ var _ionosphere = _interopRequireDefault(require("./ionosphere.js"));
 
 var _ionosonde = _interopRequireDefault(require("./ionosonde.js"));
 
+var _wave = _interopRequireDefault(require("./wave.js"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
@@ -42136,7 +42181,10 @@ function init() {
   var earthCore = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({
     color: 0x00BB00
   }));
-  scene.add(earthCore);
+  console.log(earth);
+  waves.push(new _wave.default(earth, ionosphere, 1 / 2, 0, 20, 1 / 2)); //scene.add(waves[0].geom);
+  // scene.add(earthCore);
+
   renderer.render(scene, camera);
 }
 
@@ -42157,7 +42205,7 @@ function animate() {
 init();
 animate();
 window.addEventListener('resize', onWindowResize, false);
-},{"three":"node_modules/three/build/three.module.js","three-orbitcontrols":"node_modules/three-orbitcontrols/OrbitControls.js","three.interaction":"node_modules/three.interaction/build/three.interaction.module.js","./earth.js":"earth.js","./cubesat.js":"cubesat.js","./ionosphere.js":"ionosphere.js","./ionosonde.js":"ionosonde.js"}],"C:/Users/bigfat/AppData/Roaming/npm/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"three":"node_modules/three/build/three.module.js","three-orbitcontrols":"node_modules/three-orbitcontrols/OrbitControls.js","three.interaction":"node_modules/three.interaction/build/three.interaction.module.js","./earth.js":"earth.js","./cubesat.js":"cubesat.js","./ionosphere.js":"ionosphere.js","./ionosonde.js":"ionosonde.js","./wave.js":"wave.js"}],"C:/Users/bigfat/AppData/Roaming/npm/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -42184,7 +42232,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62228" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56128" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
