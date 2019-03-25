@@ -78,7 +78,7 @@ function init() {
     let earthCore=new THREE.Mesh(new THREE.SphereGeometry(0.1),new THREE.MeshBasicMaterial({color:0x00BB00}));
     console.log(earth);
     waves.push(new Wave(earth,ionosphere,1/2,0,20,1/2));
-    //scene.add(waves[0].geom);
+  //scene.add(waves[0].geom);
     // scene.add(earthCore);
     renderer.render(scene, camera);
 }
