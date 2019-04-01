@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import hsv from "hsv2rgb";
-export default class Ionosonde {
+//TODO Make this fetch information from blair3sat.com or something.
+export default class Ionosphere {
     randomNumArr(l, bottom, top) {
         return new Array(l).fill().map(i => Math.floor(Math.random() * (top - bottom)) - bottom);
     }
@@ -53,7 +54,7 @@ this.perlin=noise.createPerline({interpolation:noise.interpolation.linear,permut
             for (let colNum = 0; colNum < res; colNum++) {
                 let lat = rowNum / res;
                 let long = colNum / res;
-                let r = this.getRadius(lat, long,5) + this.altitude;
+                let r = this.getRadius(lat, long,5)*2 + this.altitude;
                 let c = this.getCoords(r, lat, long);
                 let heat=255/(1+10*Math.pow(Math.E,-160*(r-this.altitude)));
                 let color=hsv(heat,127.5,127.5,[0,0,0,51])
