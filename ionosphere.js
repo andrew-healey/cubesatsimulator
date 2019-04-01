@@ -7,8 +7,9 @@ export default class Ionosonde {
     getRadius(lat, long) {
         lat = Math.PI / 2 - Math.PI * 2 * lat;
         long = Math.PI * 2 * long;
-        let r = theta => (this.b * Math.cos(this.d * theta) + this.a * Math.sin(this.c * theta))*this.altitude/40;
-        return r(long) * r(lat)/ this.altitude;
+        let r = (this.b * Math.cos(this.d * lat) + this.a * Math.sin(this.c * long))*this.altitude/100;
+	return this.perlin(getCoords(lat,long));
+        //return r/ this.altitude;
     }
     getCoords(radius, lat, long) {
         lat = Math.PI / 2 - Math.PI * lat;
@@ -21,7 +22,10 @@ export default class Ionosonde {
     }
     constructor(scene,res, altitude) {
         [this.a, this.b] = this.randomNumArr(2, -2, 2);
-        [this.c, this.d] = this.randomNumArr(2, -5, 5);
+        [this.c, this.d] = this.randomNumArr(2, -10, 10);
+
+this.perlin=noise.createPerline({interpolation:noise.interpolation.linear,permutation:noise.array.shuffle(noise.array.range(0,255),Math.random)});
+
         let physical = new THREE.BufferGeometry();
                 let color=new THREE.Color();
         this.altitude=altitude;
