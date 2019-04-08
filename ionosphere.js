@@ -53,7 +53,7 @@ export default class Ionosphere {
                 let r = this.getRadius(lat, long,5)*2 + this.altitude;
                 let c = this.getCoords(r, lat, long);
                 let heat=255/(1+10*Math.pow(Math.E,-160*(r-this.altitude)));
-                let color=hsv(heat,127.5,127.5,[0,0,0,51])
+                let color=hsv(heat,127.5,127.5,[0,0,0,25.5])
                 newRow.push({position:c,color});
             }
             newRow.push(...newRow.slice(0, 1));

@@ -41645,7 +41645,7 @@ function () {
         var c = this.getCoords(_r, lat, long);
         var heat = 255 / (1 + 10 * Math.pow(Math.E, -160 * (_r - this.altitude)));
 
-        var _color = (0, _hsv2rgb.default)(heat, 127.5, 127.5, [0, 0, 0, 51]);
+        var _color = (0, _hsv2rgb.default)(heat, 127.5, 127.5, [0, 0, 0, 25.5]);
 
         newRow.push({
           position: c,
@@ -41842,9 +41842,11 @@ function () {
       //Until it stops crashing, use this
       //return;
       //TODO implement hitting ionosondes
+      console.log("Starting update");
+
       if (this.stop) {
         return;
-      } else if (dt < 1000) this.stop = true;
+      } else if (dt > 1000) this.stop = true;
 
       this.lifetime += dt;
       var caster = new THREE.Raycaster(this.origin, this.origin, 0.1, 10);
@@ -41864,9 +41866,11 @@ function () {
           try {
             for (var _iterator2 = row[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
               var point = _step2.value;
-              console.log((rowNum * this.resolution + ptNum) / this.resolution ^ 2);
+              //console.log((rowNum*this.resolution+ptNum)/this.resolution^2);
               var distanceToTravel = this.lifetime / 10000;
               if (!point.visible) distanceToTravel = 0;
+              var timesThrough = 0;
+              timesThrough++;
 
               while (distanceToTravel > 0) {
                 var earthHit = caster.intersectObject(this.earth.earth); //Of type mesh
@@ -41875,7 +41879,7 @@ function () {
 
                 if (sphereHit.length > 0 && sphereHit[0].distance <= this.lifetime) {
                   point.origin = sphereHit[0].distance;
-                  distanceToTravel -= sphereHit[0].distance; //How to do this? This code is just a placeholder
+                  distanceToTravel -= sphereHit[0].distance;
 
                   var _newDirection = sphereHit[0].point.addScaledVector(direction.negate(), 2);
 
@@ -41992,11 +41996,7 @@ function () {
     value: function getCoords(radius, lat, long) {
       lat = Math.PI / 2 - Math.PI * lat;
       long = Math.PI * 2 * long;
-      return {
-        x: radius * Math.cos(long) * Math.abs(Math.cos(lat)),
-        z: radius * Math.sin(long) * Math.abs(Math.cos(lat)),
-        y: radius * Math.sin(lat)
-      };
+      return [radius * Math.cos(long) * Math.abs(Math.cos(lat)), radius * Math.sin(long) * Math.abs(Math.cos(lat)), radius * Math.sin(lat)];
     }
   }]);
 
@@ -42065,7 +42065,10 @@ function () {
     this.geom.position.z = this.pos.z;
     this.geom.lookAt(new THREE.Vector3(0, 0, 0));
     scene.add(this.geom);
-    this.waves.push(new _wave.default(this.earth, this.ionosphere, this.lat, this.long, 100, Math.PI / 4));
+    var wave = new _wave.default(this.earth, this.ionosphere, this.lat, this.long, 100, Math.PI / 4);
+    this.waves.push(wave);
+    wave.update();
+    console.log("Updated first wave");
   }
 
   _createClass(Ionosonde, [{
@@ -42154,7 +42157,7 @@ var renderer,
     controls,
     interaction,
     clock,
-    start = performance.now();
+    start = +new Date();
 var earth, cubesat, ionosphere, ionosonde;
 var container = document.getElementById('container');
 var waves = [];
@@ -42210,7 +42213,7 @@ function init() {
     color: 0x00BB00
   }));
   console.log(earth);
-  waves.push(new _wave.default(earth, ionosphere, 1 / 2, 0, 20, 1 / 2)); //scene.add(waves[0].geom);
+  waves.push(new _wave.default(earth, ionosphere, 1 / 2, 0, 5, 1 / 2)); //scene.add(waves[0].geom);
   // scene.add(earthCore);
 
   renderer.render(scene, camera);
@@ -42218,19 +42221,20 @@ function init() {
 
 function animate() {
   requestAnimationFrame(animate);
-  var dt = performance.now() - start;
+  var dt = new Date() - start;
   cubesat.update(dt);
   ionosonde.update(dt);
 
-  for (var _i = 0; _i < waves.length; _i++) {
+  for (var _i = 0; _i < waves.length; _i++) {//wave.update(dt);
+
     var wave = waves[_i];
-    wave.update(dt);
   }
 
   renderer.render(scene, camera);
 }
 
 init();
+ionosonde.update(2000);
 animate();
 window.addEventListener('resize', onWindowResize, false);
 },{"three":"node_modules/three/build/three.module.js","three-orbitcontrols":"node_modules/three-orbitcontrols/OrbitControls.js","three.interaction":"node_modules/three.interaction/build/three.interaction.module.js","./earth.js":"earth.js","./cubesat.js":"cubesat.js","./ionosphere.js":"ionosphere.js","./ionosonde.js":"ionosonde.js","./wave.js":"wave.js"}],"../../../../../../usr/local/lib/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -42260,7 +42264,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38685" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41125" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

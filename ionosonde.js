@@ -7,7 +7,6 @@ export default class Ionosonde {
     this.radius = 1;
     this.earth = earth;
     this.waves = waves;
-    console.log(typeof this.waves);
     this.period = 0;
     this.pos = this.getCoords(this.radius, lat, long);
     this.model = new THREE.BufferGeometry();
@@ -34,7 +33,11 @@ export default class Ionosonde {
     this.geom.position.z = this.pos.z;
     this.geom.lookAt(new THREE.Vector3(0, 0, 0));
     scene.add(this.geom);
-    this.waves.push(new Wave(this.earth, this.ionosphere, this.lat, this.long, 100, Math.PI / 4));
+    let wave=new Wave(this.earth, this.ionosphere, this.lat, this.long, 100, Math.PI / 4);
+    this.waves.push(wave);
+    scene.add(wave.geom);
+    wave.update();
+    console.log("Updated first wave");
   }
   getCoords(radius, lat, long) {
     lat = Math.PI / 2 - Math.PI * lat;

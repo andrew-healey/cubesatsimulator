@@ -10,7 +10,7 @@ import Ionosphere from './ionosphere.js';
 import Ionosonde from './ionosonde.js';
 import Wave from './wave.js';
 
-let renderer, scene, camera, controls, interaction, clock, start = performance.now();
+let renderer, scene, camera, controls, interaction, clock, start =+ new Date(); 
 let earth, cubesat, ionosphere, ionosonde;
 let container = document.getElementById('container');
 
@@ -76,25 +76,22 @@ function init() {
     console.log(waves instanceof Array);
     ionosonde = new Ionosonde(scene, earth,ionosphere,1/4,0,waves);
     let earthCore=new THREE.Mesh(new THREE.SphereGeometry(0.1),new THREE.MeshBasicMaterial({color:0x00BB00}));
-    console.log(earth);
-    waves.push(new Wave(earth,ionosphere,1/2,0,20,1/2));
-  //scene.add(waves[0].geom);
-    // scene.add(earthCore);
+    waves.push(new Wave(earth,ionosphere,1/2,0,5,1/2));
     renderer.render(scene, camera);
 }
-
 function animate() {
     requestAnimationFrame(animate);
-    let dt=performance.now() - start
+    let dt=new Date() - start;
     cubesat.update(dt);
     ionosonde.update(dt);
     for(let wave of waves){
-        wave.update(dt);
+      //wave.update(dt);
     }
 
     renderer.render(scene, camera);
 }
 
-init()
+init();
+ionosonde.update(2000);
 animate();
 window.addEventListener('resize', onWindowResize, false);

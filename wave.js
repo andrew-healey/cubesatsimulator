@@ -39,25 +39,27 @@ export default class Wave {
     //Until it stops crashing, use this
     //return;
     //TODO implement hitting ionosondes
+    console.log("Starting update");
     if (this.stop) {
       return;
-    } else if (dt < 1000) this.stop = true;
+    } else if (dt > 1000) this.stop = true;
     this.lifetime += dt;
     let caster = new THREE.Raycaster(this.origin, this.origin, 0.1, 10);
     let rowNum = 0;
     for (let row of this.locus) {
       let ptNum = 0;
       for (let point of row) {
-        console.log((rowNum*this.resolution+ptNum)/this.resolution^2);
+        //console.log((rowNum*this.resolution+ptNum)/this.resolution^2);
         let distanceToTravel = this.lifetime / 10000;
         if (!point.visible) distanceToTravel = 0;
+        let timesThrough=0;
+        timesThrough++;
         while (distanceToTravel > 0) {
           let earthHit = caster.intersectObject(this.earth.earth); //Of type mesh
           let sphereHit = caster.intersectObject(this.ionosphere.ionosphere); //Also of type mesh, but using a buffer
           if (sphereHit.length > 0 && sphereHit[0].distance <= this.lifetime) {
             point.origin = sphereHit[0].distance;
             distanceToTravel -= sphereHit[0].distance;
-            //How to do this? This code is just a placeholder
             let newDirection = sphereHit[0].point.addScaledVector(direction.negate(),2);
             caster.set(sphereHit[0].point, newDirection);
             continue;
@@ -87,15 +89,14 @@ export default class Wave {
     }
     buf.addAttribute("position", new THREE.Float32BufferAttribute(points, 3));
     this.geom = new THREE.Points(buf, this.material);
-    console.log(this.geom);
   }
   getCoords(radius, lat, long) {
     lat = Math.PI / 2 - Math.PI * lat;
     long = Math.PI * 2 * long;
-    return ({
-      x: radius * Math.cos(long) * Math.abs(Math.cos(lat)),
-      z: radius * Math.sin(long) * Math.abs(Math.cos(lat)),
-      y: radius * Math.sin(lat)
-    });
+    return [
+      radius * Math.cos(long) * Math.abs(Math.cos(lat)),
+      radius * Math.sin(long) * Math.abs(Math.cos(lat)),
+      radius * Math.sin(lat)
+    ];
   }
 }
