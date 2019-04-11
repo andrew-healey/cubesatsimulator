@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import hsv from "hsv2rgb";
+import SimplexNoise from "open-simplex-noise";
 //TODO Make this fetch information from blair3sat.com or something.
 export default class Ionosphere {
     randomNumArr(l, bottom, top) {
@@ -9,26 +10,27 @@ export default class Ionosphere {
         lat = Math.PI / 2 - Math.PI * 2 * lat;
         long = Math.PI * 2 * long;
         let r = (this.b * Math.cos(this.d * lat) + this.a * Math.sin(this.c * long))*this.altitude/100;
-	return this.perlin(getCoords(lat,long));
+        let ret=(this.perlin.noise3D(...this.getCoords(this.altitude,lat,long))+1)/10+0.25;
+        return ret;
         //return r/ this.altitude;
     }
     getCoords(radius, lat, long) {
         lat = Math.PI / 2 - Math.PI * lat;
         long = Math.PI * 2 * long;
-        return ({
-            x: radius * Math.cos(long) * Math.abs(Math.cos(lat)),
-            z: radius * Math.sin(long) * Math.abs(Math.cos(lat)),
-            y: radius * Math.sin(lat)
-        });
+        return [
+            radius * Math.cos(long) * Math.abs(Math.cos(lat)),
+            radius * Math.sin(long) * Math.abs(Math.cos(lat)),
+            radius * Math.sin(lat)
+        ];
     }
     constructor(scene,res, altitude) {
         [this.a, this.b] = this.randomNumArr(2, -2, 2);
         [this.c, this.d] = this.randomNumArr(2, -10, 10);
 
-this.perlin=noise.createPerline({interpolation:noise.interpolation.linear,permutation:noise.array.shuffle(noise.array.range(0,255),Math.random)});
+        this.perlin=new SimplexNoise(this.a+this.b+this.c+this.d);
 
         let physical = new THREE.BufferGeometry();
-                let color=new THREE.Color();
+        let color=new THREE.Color();
         this.altitude=altitude;
         this.vectors = [];
         this.colors = [];
@@ -38,8 +40,8 @@ this.perlin=noise.createPerline({interpolation:noise.interpolation.linear,permut
             for (let colNum = 0; colNum < res; colNum++) {
                 let oldPoints=lastRow.slice(colNum, colNum+2);
                 let newPoints=newRow.slice(colNum, colNum+2);
-                let oldCoords = oldPoints.reduce((last,next)=>[...last,...["x","y","z"].map(e=>next.position[e])],[]);
-                let newCoords = newPoints.reduce((last,next)=>[...last,...["x","y","z"].map(e=>next.position[e])],[]);
+                let oldCoords = oldPoints.reduce((last,next)=>[...last,...next.position],[]);
+                let newCoords = newPoints.reduce((last,next)=>[...last,...next.position],[]);
                 let oldColors=oldPoints.reduce((last,next)=>[...last,...next.color],[]);
                 let newColors=newPoints.reduce((last,next)=>[...last,...next.color],[]);
                 let toAdd = [...oldCoords, ...newCoords.slice(0, 3), ...newCoords, ...oldCoords.slice(3, 6)];

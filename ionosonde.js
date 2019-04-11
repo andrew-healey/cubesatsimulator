@@ -33,10 +33,10 @@ export default class Ionosonde {
     this.geom.position.z = this.pos.z;
     this.geom.lookAt(new THREE.Vector3(0, 0, 0));
     scene.add(this.geom);
-    let wave=new Wave(this.earth, this.ionosphere, this.lat, this.long, 100, Math.PI / 4);
+    let wave=new Wave(this.earth, this.ionosphere, this.lat, this.long, 10, Math.PI / 4);
     this.waves.push(wave);
     scene.add(wave.geom);
-    wave.update();
+    wave.update(0);
     console.log("Updated first wave");
   }
   getCoords(radius, lat, long) {

@@ -85,7 +85,7 @@ function animate() {
     cubesat.update(dt);
     ionosonde.update(dt);
     for(let wave of waves){
-      //wave.update(dt);
+      wave.update(dt);
     }
 
     renderer.render(scene, camera);
