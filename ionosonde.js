@@ -38,7 +38,6 @@ export default class Ionosonde {
     let wave=new Wave(this.earth, this.ionosphere, this.lat, this.long, 10, Math.PI / 4);
     this.waves.push(wave);
     scene.add(wave.geom);
-    wave.update(0);
     console.log("Updated first wave");
   }
   getCoords(radius, lat, long) {
