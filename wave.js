@@ -25,15 +25,7 @@ export default class Wave {
             };
             return ret;
         }));
-        this.material = new THREE.ShaderMaterial({
-            uniforms: {
-                color: {
-                    value: new THREE.Color(0xffffff)
-                },
-            },
-            vertexShader: document.getElementById('pointvertexshader').textContent,
-            fragmentShader: document.getElementById('pointfragmentshader').textContent
-        });
+        this.material = new THREE.PointsMaterial({color:0xFFFFFF});
         this.positions = new Float32Array(this.resolution ** 2 * 3);
         this.geometry = new THREE.BufferGeometry();
         this.geometry.addAttribute("position", new THREE.BufferAttribute(this.positions), 3);

@@ -10,6 +10,8 @@ import Ionosphere from './ionosphere.js';
 import Ionosonde from './ionosonde.js';
 import Wave from './wave.js';
 
+let isClickingOut=false;
+
 class Thing {
     constructor(name, text = "", title="") {
         this.name = name;
@@ -43,7 +45,7 @@ class Thing {
 
 class CubesatThingy extends Thing {
     constructor() {
-        super("cubesat", `the cubesat is a majestic beast`, "The Cubesat");
+        super("cubesat", `The Cubesat is what we will create on blair3sat. It has three key duties: to receive signals from ionosondes around the world; to collect information about the atmosphere with a filtered camera; and to send the data back to the blair3sat ground station. The Cubesat will deal with rapid, >100 degree temperature changes that would destroy normal electronics components. Such a design, built to replace a years-old practice, is implemented with a Cubesat because as a Cubesat, it can move and measure all steps of the radio wave's travelling between ionosonde and ionosonde.`, "The Cubesat");
         this.running = false;
     }
 
@@ -54,7 +56,7 @@ class CubesatThingy extends Thing {
 }
 class IonosondeThing extends Thing {
     constructor() {
-        super("ionosonde", `the ionosonde is a majestic beast`, "An Ionosonde");
+        super("ionosonde", `An ionosonde is a high-powered radio station that sends radio waves towards the ionosphere. An ionosonde sounding changes the frequency of its radio waves over time, allowing it to measure how the ionosphere affects different radio frequencies. Ionosondes can be paired to find information about the area between them; this method is used across oceans and other inaccessible locations. The shortcomings of ionosondes to find information about the ionosphere are as follows: since they cannot be moved easily, ionosondes can only measure information about the ionosphere directly between two ionosondes, or above one. Furthermore, by using only ground-based equipment, labs limit their knowledge of every step of the radio wave's progress through the ionosphere.`, "An Ionosonde");
         this.running = false;
     }
 
@@ -68,7 +70,7 @@ class IonosondeThing extends Thing {
 class IonosphereThing extends Thing {
     constructor() {
         super("ionosphere", `
-                The ionosphere is the layer of the earth 's atmosphere that contains a high concentration of ions and free electrons and is able to reflect radio waves. It lies above the mesosphere and extends from about 50 to 600 miles (80 to 1,000 km) above the earth's surface.
+                The ionosphere is the layer of the earth's atmosphere that contains a high concentration of ions and free electrons and is able to reflect radio waves. It lies above the mesosphere and extends from about 50 to 600 miles (80 to 1,000 km) above the earth's surface. The ionosphere reflects radio waves of certain frequencies off of it. This allows for over-the-horizon detection systems and similar applications. However, the way that the ionosphere reflects waves changes over time, varies based on location and is near impossible to predict, so the systems using the ionosphere need accurate, real-time information to use.
         `, "The Ionosphere");
         this.running = false;
     }
@@ -80,7 +82,7 @@ class IonosphereThing extends Thing {
 }
 class WaveThing extends Thing {
     constructor() {
-        super("waves", `waves are majestic beasts`);
+        super("waves", `Ionosonde soundings are sent from ionosondes. They bounce off of a certain spot in the ionosphere and move back towards the earth. Ionosondes can measure how much time the wave took to return to figure out where the wave bounced off.`);
         this.running = false;
     }
 
@@ -100,7 +102,7 @@ class InfoDropdown {
         this.canvas.height = this.canvas.offsetHeight;
         this.close = element.querySelector("#close");
 
-        this.close.addEventListener("click", () => this.reset());
+        this.close.addEventListener("mouseup", event => {this.reset();isClickingOut=true;});
 
         this.things = {};
         this.currentThing = null;
@@ -269,7 +271,7 @@ let mouseDown = false
 document.addEventListener('mousedown', evt => mouseDown = true);
 document.addEventListener('mousemove', evt => dragged = mouseDown);
 document.addEventListener('click', function(evt){
-    if(!dragged){
+    if(!dragged&&!isClickingOut){
         if(ionosonde.hover){
             info.select('ionosonde');
         } else if(cubesat.hover){
@@ -278,6 +280,7 @@ document.addEventListener('click', function(evt){
             info.select('ionosphere');
         }
     }
+    isClickingOut=false;
     mouseDown = dragged = false;
 })
 console.log('scene', scene);
