@@ -95,3 +95,5 @@ init();
 ionosonde.update(2000);
 animate();
 window.addEventListener('resize', onWindowResize, false);
+
+console.log('scene', scene);
