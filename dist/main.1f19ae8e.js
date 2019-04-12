@@ -43603,7 +43603,11 @@ function () {
       });
     });
     this.material = new THREE.PointsMaterial({
+<<<<<<< HEAD
       color: 0xFFF
+=======
+      color: 0xFFFFFF
+>>>>>>> waves
     });
     this.positions = new Float32Array(Math.pow(this.resolution, 2) * 3);
     this.scales = new Float32Array(Math.pow(this.resolution, 2));
@@ -43973,6 +43977,8 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+var isClickingOut = false;
+
 var Thing =
 /*#__PURE__*/
 function () {
@@ -44035,7 +44041,7 @@ function (_Thing) {
 
     _classCallCheck(this, CubesatThingy);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(CubesatThingy).call(this, "cubesat", "the cubesat is a majestic beast", "The Cubesat"));
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(CubesatThingy).call(this, "cubesat", "The Cubesat is what we will create on blair3sat. It has three key duties: to receive signals from ionosondes around the world; to collect information about the atmosphere with a filtered camera; and to send the data back to the blair3sat ground station. The Cubesat will deal with rapid, >100 degree temperature changes that would destroy normal electronics components. Such a design, built to replace a years-old practice, is implemented with a Cubesat because as a Cubesat, it can move and measure all steps of the radio wave's travelling between ionosonde and ionosonde.", "The Cubesat"));
     _this2.running = false;
     return _this2;
   }
@@ -44061,7 +44067,7 @@ function (_Thing2) {
 
     _classCallCheck(this, IonosondeThing);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(IonosondeThing).call(this, "ionosonde", "the ionosonde is a majestic beast", "An Ionosonde"));
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(IonosondeThing).call(this, "ionosonde", "An ionosonde is a high-powered radio station that sends radio waves towards the ionosphere. An ionosonde sounding changes the frequency of its radio waves over time, allowing it to measure how the ionosphere affects different radio frequencies. Ionosondes can be paired to find information about the area between them; this method is used across oceans and other inaccessible locations. The shortcomings of ionosondes to find information about the ionosphere are as follows: since they cannot be moved easily, ionosondes can only measure information about the ionosphere directly between two ionosondes, or above one. Furthermore, by using only ground-based equipment, labs limit their knowledge of every step of the radio wave's progress through the ionosphere.", "An Ionosonde"));
     _this3.running = false;
     return _this3;
   }
@@ -44087,7 +44093,7 @@ function (_Thing3) {
 
     _classCallCheck(this, IonosphereThing);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(IonosphereThing).call(this, "ionosphere", "\n                The ionosphere is the layer of the earth 's atmosphere that contains a high concentration of ions and free electrons and is able to reflect radio waves. It lies above the mesosphere and extends from about 50 to 600 miles (80 to 1,000 km) above the earth's surface.\n        ", "The Ionosphere"));
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(IonosphereThing).call(this, "ionosphere", "\n                The ionosphere is the layer of the earth's atmosphere that contains a high concentration of ions and free electrons and is able to reflect radio waves. It lies above the mesosphere and extends from about 50 to 600 miles (80 to 1,000 km) above the earth's surface. The ionosphere reflects radio waves of certain frequencies off of it. This allows for over-the-horizon detection systems and similar applications. However, the way that the ionosphere reflects waves changes over time, varies based on location and is near impossible to predict, so the systems using the ionosphere need accurate, real-time information to use.\n        ", "The Ionosphere"));
     _this4.running = false;
     return _this4;
   }
@@ -44113,7 +44119,7 @@ function (_Thing4) {
 
     _classCallCheck(this, WaveThing);
 
-    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(WaveThing).call(this, "waves", "waves are majestic beasts"));
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(WaveThing).call(this, "waves", "Ionosonde soundings are sent from ionosondes. They bounce off of a certain spot in the ionosphere and move back towards the earth. Ionosondes can measure how much time the wave took to return to figure out where the wave bounced off."));
     _this5.running = false;
     return _this5;
   }
@@ -44144,8 +44150,10 @@ function () {
     this.canvas.width = this.canvas.offsetWidth;
     this.canvas.height = this.canvas.offsetHeight;
     this.close = element.querySelector("#close");
-    this.close.addEventListener("click", function () {
-      return _this6.reset();
+    this.close.addEventListener("mouseup", function (event) {
+      _this6.reset();
+
+      isClickingOut = true;
     });
     this.things = {};
     this.currentThing = null;
@@ -44316,7 +44324,7 @@ document.addEventListener('mousemove', function (evt) {
   return dragged = mouseDown;
 });
 document.addEventListener('click', function (evt) {
-  if (!dragged) {
+  if (!dragged && !isClickingOut) {
     if (ionosonde.hover) {
       info.select('ionosonde');
     } else if (cubesat.hover) {
@@ -44326,6 +44334,7 @@ document.addEventListener('click', function (evt) {
     }
   }
 
+  isClickingOut = false;
   mouseDown = dragged = false;
 });
 console.log('scene', scene); // document.getElementById("cubesat").addEventListener("click", () => {
@@ -44358,7 +44367,11 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+<<<<<<< HEAD
   var ws = new WebSocket(protocol + '://' + hostname + ':' + "62722" + '/');
+=======
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55025" + '/');
+>>>>>>> waves
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

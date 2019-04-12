@@ -25,7 +25,11 @@ export default class Wave {
             };
             return ret;
         }));
+<<<<<<< HEAD
         this.material = new THREE.PointsMaterial({color:0xFFF});
+=======
+        this.material = new THREE.PointsMaterial({color:0xFFFFFF});
+>>>>>>> waves
         this.positions = new Float32Array(this.resolution ** 2 * 3);
         this.scales=new Float32Array(this.resolution**2);
         this.geometry = new THREE.BufferGeometry();
