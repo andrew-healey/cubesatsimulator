@@ -25,19 +25,14 @@ export default class Wave {
             };
             return ret;
         }));
-        this.material = new THREE.ShaderMaterial({
-            uniforms: {
-                color: {
-                    value: new THREE.Color(0xffffff)
-                },
-            },
-            vertexShader: document.getElementById('pointvertexshader').textContent,
-            fragmentShader: document.getElementById('pointfragmentshader').textContent
-        });
+        this.material = new THREE.PointsMaterial({color:0xFFF});
         this.positions = new Float32Array(this.resolution ** 2 * 3);
+        this.scales=new Float32Array(this.resolution**2);
         this.geometry = new THREE.BufferGeometry();
         this.geometry.addAttribute("position", new THREE.BufferAttribute(this.positions), 3);
+        this.geometry.addAttribute("scale",new THREE.BufferAttribute(this.scales,3));
         this.geom = new THREE.Points(this.geometry, this.material);
+        this.update(50);
         this.cubeStart = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial({
             color: "gray"
         }));
@@ -52,8 +47,8 @@ export default class Wave {
         this.lifetime += dt;
         let caster = new THREE.Raycaster(this.origin, this.origin, 0.1, 10);
         let rowNum = 0;
-        //console.log(dt,"is dt");
         let newLocus = this.geom.geometry.attributes.position.array;
+        let scales=this.geom.geometry.attributes.scale.array;
         for (let row of this.locus) {
             let ptNum = 0;
             for (let point of row) {
@@ -81,28 +76,20 @@ export default class Wave {
                     newLocus[index] = finalVector.x;
                     newLocus[index + 1] = finalVector.y;
                     newLocus[index + 2] = finalVector.z;
+                    scales[index]=finalVector.x;
+                    scales[index+1]=finalVector.y;
+                    scales[index+2]=finalVector.z;
                     break;
                 }
                 ptNum++;
             }
             rowNum++;
         }
-        console.log(this.geom.geometry.attributes.position);
         this.geom.geometry.attributes.position.needsUpdate = true;
+        this.geom.geometry.attributes.scale.needsUpdate=true;
     }
     isTouching() {
 
-    }
-    render() {
-        let points = [];
-        for (let row of this.locus) {
-            for (let point of row) {
-                console.log(points.x, points.y, points.z);
-                for (let i = 0; i < 3; i++) points.push(points.x, point.y, point.z);
-            }
-        }
-        buf.addAttribute("position", new THREE.Float32BufferAttribute(points, 3));
-        this.geom = new THREE.Points(buf, this.material);
     }
     getCoords(radius, lat, long) {
         lat = Math.PI / 2 - Math.PI * lat;

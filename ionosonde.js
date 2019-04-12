@@ -26,19 +26,32 @@ export default class Ionosonde {
       vertices[1], vertices[2], vertices[3]
     ].reduce((last, next) => [...last, ...next], []);
     this.model.addAttribute("position", new THREE.Float32BufferAttribute(faces, 3))
-    this.geom = new THREE.Mesh(this.model, new THREE.MeshBasicMaterial({
+    let material=new THREE.MeshBasicMaterial({
       color: 0xFFFFFF,
       side: THREE.DoubleSide
-    }))
+    });
+    let model=new THREE.Group();
+    let stand=new THREE.CubeGeometry(this.radius/8,this.radius,this.radius/8);
+    stand=new THREE.Mesh(material,stand);
+    let perp=new THREE.CubeGeometry(this.radius/2,this.radius/8,this.radius/8)
+    perp=new THREE.Mesh(perp,material);
+    perp.position.set(new THREE.Vector3(0,this.radius,0));
+    model.add(stand,perp);
+    for(let i=0;i<5;i++){
+      let newRod=new THREE.CubeGeometry(this.radius/8,this.radius/8,this.radius/3);
+      newRod = new THREE.Mesh(newRod, material);
+      newRod.position.set(new THREE.Vector3(this.radius/4*(i-2),this.radius,0));
+      model.add(newRod);
+    }
+    this.geom = model;
     this.geom.position.x = this.pos.x;
     this.geom.position.y = this.pos.y;
     this.geom.position.z = this.pos.z;
     this.geom.lookAt(new THREE.Vector3(0, 0, 0));
-    scene.add(this.geom);
+    // scene.add(this.geom);
     let wave=new Wave(this.earth, this.ionosphere, this.lat, this.long, 10, Math.PI / 4);
     this.waves.push(wave);
-    scene.add(wave.geom);
-    wave.update(0);
+    // scene.add(wave.geom);
     console.log("Updated first wave");
   }
   getCoords(radius, lat, long) {
@@ -52,9 +65,9 @@ export default class Ionosonde {
   }
   update(dt) {
     this.period += dt;
-    if (this.geom.material.color > 0) {
-      this.geom.material.color -= 0x010101;
-    }
+    // if (this.geom.material.color > 0) {
+    //   this.geom.material.color -= 0x010101;
+    // }
     if (this.period >= 2000) {
       this.period %= 2000;
       //Sound
