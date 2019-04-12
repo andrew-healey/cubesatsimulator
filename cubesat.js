@@ -16,12 +16,12 @@ export default class Cubesat {
 
         scene.add(this.cube);
         console.log(scene);
+
+        // this.indicator = document.getElemenyById('cubesat-indicator');
     }
 
     update(t) {
-        // if(this.hover){
-            this.cube.material.color.setHex(this.hover ? 0xbbb : 0x888);
-        // } else {}
+        this.cube.material.color.setHex(this.hover ? 0xbbb : 0x888);
         if(this.earth){
             this.cube.position.z = -Math.sin(t / 10000) * 1.5;
             this.cube.position.y = -Math.cos(t / 10000) * 1.5;

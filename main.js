@@ -10,6 +10,12 @@ import Ionosphere from './ionosphere.js';
 import Ionosonde from './ionosonde.js';
 import Wave from './wave.js';
 
+let lables = {
+    cubesat: document.getElementById('cubesat-indicator'),
+    // ionosphere: document.
+}
+
+
 class Thing {
     constructor(name, text = "", title="") {
         this.name = name;
@@ -303,6 +309,7 @@ function init() {
     renderer.render(scene, camera);
 }
 
+
 function animate() {
     setTimeout(()=>requestAnimationFrame(animate, 2));
     let dt=new Date() - start;
@@ -335,12 +342,26 @@ function animate() {
         }
     }
     if(!match && ionos) ionosphere.hover = true;
+
+    let vector = cubesat.cube.position.clone().project(camera);
+    vector.x = (vector.x + 1) / 2 * window.innerWidth;
+    vector.y = -(vector.y - 1) / 2 * window.innerHeight;
+    lables.cubesat.style.left = vector.x+50+'px';
+    lables.cubesat.style.top = vector.y-lables.cubesat.offsetHeight/2+'px';
+
     renderer.render(scene, camera);
 }
 
 init();
 ionosonde.update(2000);
 animate();
+
+lables.cubesat.hidden = false;
+lables.cubesat.addEventListener('click', (evt) => {
+    evt.stopPropagation();
+    info.select('cubesat');
+})
+
 window.addEventListener('resize', onWindowResize, false);
 
 let dragged = false;
