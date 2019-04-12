@@ -32,6 +32,7 @@ export default class Wave {
         this.geometry.addAttribute("position", new THREE.BufferAttribute(this.positions), 3);
         this.geometry.addAttribute("scale",new THREE.BufferAttribute(this.scales,3));
         this.geom = new THREE.Points(this.geometry, this.material);
+        this.update(50);
         this.cubeStart = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial({
             color: "gray"
         }));
