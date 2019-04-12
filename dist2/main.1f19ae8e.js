@@ -39617,14 +39617,13 @@ function () {
     }));
     this.cube.position.y = 1.5;
     scene.add(this.cube);
-    console.log(scene);
+    console.log(scene); // this.indicator = document.getElemenyById('cubesat-indicator');
   }
 
   _createClass(Cubesat, [{
     key: "update",
     value: function update(t) {
-      // if(this.hover){
-      this.cube.material.color.setHex(this.hover ? 0xbbb : 0x888); // } else {}
+      this.cube.material.color.setHex(this.hover ? 0xbbb : 0x888);
 
       if (this.earth) {
         this.cube.position.z = -Math.sin(t / 10000) * 1.5;
@@ -44037,6 +44036,11 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+var lables = {
+  cubesat: document.getElementById('cubesat-indicator') // ionosphere: document.
+
+};
+
 var Thing =
 /*#__PURE__*/
 function () {
@@ -44382,12 +44386,22 @@ function animate() {
   }
 
   if (!match && ionos) ionosphere.hover = true;
+  var vector = cubesat.cube.position.clone().project(camera);
+  vector.x = (vector.x + 1) / 2 * window.innerWidth;
+  vector.y = -(vector.y - 1) / 2 * window.innerHeight;
+  lables.cubesat.style.left = vector.x + 50 + 'px';
+  lables.cubesat.style.top = vector.y - lables.cubesat.offsetHeight / 2 + 'px';
   renderer.render(scene, camera);
 }
 
 init();
 ionosonde.update(2000);
 animate();
+lables.cubesat.hidden = false;
+lables.cubesat.addEventListener('click', function (evt) {
+  evt.stopPropagation();
+  info.select('cubesat');
+});
 window.addEventListener('resize', onWindowResize, false);
 var dragged = false;
 var mouseDown = false;
