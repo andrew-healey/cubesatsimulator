@@ -3,6 +3,8 @@ import Wave from './wave';
 
 export default class Ionosonde {
   constructor(scene, earth, ionosphere, lat, long, waves) {
+    this.hover = false;
+
     this.ionosphere = ionosphere;
     this.radius = 1;
     this.earth = earth;

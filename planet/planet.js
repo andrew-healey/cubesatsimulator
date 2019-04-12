@@ -26,12 +26,12 @@ export default function (scene, camera, renderer) {
         config.ambient_light_intensity
     );
     scene.add(ambient_light);
-    let sunlight = new THREE.DirectionalLight(
-        0xffffff,
-        config.sunlight_intensity
-    );
-    sunlight.position.set(1, 0, 0);
-    scene.add(sunlight);
+    // let sunlight = new THREE.DirectionalLight(
+    //     0xffffff,
+    //     config.sunlight_intensity
+    // );
+    // sunlight.position.set(1, 0, 0);
+    // scene.add(sunlight);
 
     // Follows the camera
     let light = new THREE.PointLight(0xffffff, config.camera_light_intensity);

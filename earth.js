@@ -13,5 +13,6 @@ export default class Earth {
         // scene.add(this.earth);
         // console.log(this)
         this.earth = planet(scene, camera, renderer)
+        this.hover = false;
     }
 }

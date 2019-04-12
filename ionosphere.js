@@ -10,9 +10,8 @@ export default class Ionosphere {
         lat = Math.PI / 2 - Math.PI * 2 * lat;
         long = Math.PI * 2 * long;
         let r = (this.b * Math.cos(this.d * lat) + this.a * Math.sin(this.c * long))*this.altitude/100;
-        let ret=(this.perlin.noise3D(...this.getCoords(this.altitude,lat/5,long/3))+1)/10+0.25;
+        let ret=(this.perlin.noise3D(...this.getCoords(this.altitude,lat*0.75,long*0.6))+1)/15+0.25;
         return ret;
-        //return r/ this.altitude;
     }
     getCoords(radius, lat, long) {
         lat = Math.PI / 2 - Math.PI * lat;
@@ -24,6 +23,8 @@ export default class Ionosphere {
         ];
     }
     constructor(scene,res, altitude) {
+        this.hover = false;
+
         [this.a, this.b] = this.randomNumArr(2, -2, 2);
         [this.c, this.d] = this.randomNumArr(2, -10, 10);
 

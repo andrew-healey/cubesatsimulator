@@ -12,13 +12,6 @@ export default class Cubesat {
                 color: 0x888888
             }),
         );
-        this.cube.cursor = 'pointer';
-        this.cube.on('mouseover', () => {
-            this.cube.material.color.setHex(0xffffff);
-        });
-        this.cube.on('mouseout', () => {
-            this.cube.material.color.setHex(0x888888);
-        });
         this.cube.position.y = 1.5;
 
         scene.add(this.cube);
