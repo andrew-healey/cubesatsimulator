@@ -30,6 +30,7 @@ body {
     color: white;
     display: flex;
     flex-direction: row;
+    opacity: 0.9;
 }
 
 #canvas {
@@ -58,12 +59,43 @@ body {
     font-size: 1.5em;
     line-height: 1.8;
     color: #f0f0f0;
+    overflow-y: auto;
+    font-weight: 100;
     /* text-ali */
+}
+#text .sources{
+    color: #333333;
+    font-size: 0.75em;
+}
+#text a {
+    background-color: inherit;
+    font-size: 0.75em;
+    padding-left: 1em;
 }
 
 #info.visible {
     top: 0px;
     transition: top ease-in 0.2s;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #444;
+    opacity: 0.25;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 #close {

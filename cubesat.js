@@ -7,7 +7,7 @@ export default class Cubesat {
     constructor(scene, earth) {
         this.earth = earth;
         this.cube = new THREE.Mesh(
-            new THREE.BoxGeometry(0.25, 0.25, 0.25),
+            new THREE.BoxGeometry(0.25, 0.25/3, 0.25/3),
             new THREE.MeshBasicMaterial({
                 color: 0x888888
             }),
@@ -19,8 +19,13 @@ export default class Cubesat {
     }
 
     update(t) {
-        this.cube.position.z = -Math.sin(t / 10000) * 1.5;
-        this.cube.position.y = -Math.cos(t / 10000) * 1.5;
-        this.cube.lookAt(this.earth.position);
+        // if(this.hover){
+            this.cube.material.color.setHex(this.hover ? 0xbbb : 0x888);
+        // } else {}
+        if(this.earth){
+            this.cube.position.z = -Math.sin(t / 10000) * 1.5;
+            this.cube.position.y = -Math.cos(t / 10000) * 1.5;
+            this.cube.lookAt(this.earth.position);
+        }
     }
 }

@@ -39612,7 +39612,7 @@ function () {
     _classCallCheck(this, Cubesat);
 
     this.earth = earth;
-    this.cube = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), new THREE.MeshBasicMaterial({
+    this.cube = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25 / 3, 0.25 / 3), new THREE.MeshBasicMaterial({
       color: 0x888888
     }));
     this.cube.position.y = 1.5;
@@ -39623,9 +39623,14 @@ function () {
   _createClass(Cubesat, [{
     key: "update",
     value: function update(t) {
-      this.cube.position.z = -Math.sin(t / 10000) * 1.5;
-      this.cube.position.y = -Math.cos(t / 10000) * 1.5;
-      this.cube.lookAt(this.earth.position);
+      // if(this.hover){
+      this.cube.material.color.setHex(this.hover ? 0xbbb : 0x888); // } else {}
+
+      if (this.earth) {
+        this.cube.position.z = -Math.sin(t / 10000) * 1.5;
+        this.cube.position.y = -Math.cos(t / 10000) * 1.5;
+        this.cube.lookAt(this.earth.position);
+      }
     }
   }]);
 
@@ -43342,7 +43347,7 @@ function () {
       lat = Math.PI / 2 - Math.PI * 2 * lat;
       long = Math.PI * 2 * long;
       var r = (this.b * Math.cos(this.d * lat) + this.a * Math.sin(this.c * long)) * this.altitude / 100;
-      var ret = ((_this$perlin = this.perlin).noise3D.apply(_this$perlin, _toConsumableArray(this.getCoords(this.altitude, lat * 0.75, long * 0.6))) + 1) / 15 + 0.25;
+      var ret = ((_this$perlin = this.perlin).noise3D.apply(_this$perlin, _toConsumableArray(this.getCoords(this.altitude, lat, long))) + 1) / 15 + 0.25;
       return ret;
     }
   }, {
@@ -44016,6 +44021,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -44046,8 +44055,7 @@ function () {
     key: "init",
     value: function init(canvas) {
       // console.log(canvas);
-      this.canvas = canvas;
-      this.context = canvas.getContext("2d");
+      this.canvas = canvas; // this.context = canvas.getContext("2d");
     }
   }, {
     key: "$animate",
@@ -44090,16 +44098,33 @@ function (_Thing) {
 
     _classCallCheck(this, CubesatThingy);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(CubesatThingy).call(this, "cubesat", "the cubesat is a majestic beast", "The Cubesat"));
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(CubesatThingy).call(this, "cubesat", "\n            A CubeSat is a square - shaped miniature satellite(10 cm x 10 cm x 10 cm\u2014 roughly the size of a Rubik 's cube), weighing about 1 kg. A CubeSat can be used alone (1 unit) or in groups of multiple units (maximum 24 units)\n\n            CubeSats can carry small science instruments to conduct an experiment or take measurements from space.\n\n            CubeSats can provide students with a unique hands - on experience in developing space missions from design, to launch and operations.\n\n            CubeSats tend to hitch a ride into space using extra space available on rockets. They are packed in a container which, with the push of a button, activates a spring that ejects the CubeSats into space. CubeSats can also be deployed from the International Space Station by using the same technique from the airlock in the Japanese module. Like other satellites, they can be flown alone or in a constellation network.\n\n            CubeSats are revolutionizing access to space: developers and users are eagerly taking advantage of this new platform to increase research and development activities conducted in space.\n\n            CubeSats are even being used\n            for interplanetary missions: NASA 's Mars Cube One (MarCO) embarked on a mission to Mars in May 2018.\n            MarCO, sh, demonstrated the ability of small satellites to explore deep space and provided real - time information in support of critical landing operations on a distant world.\n        ", "The Cubesat"));
     _this2.running = false;
     return _this2;
   }
 
   _createClass(CubesatThingy, [{
+    key: "init",
+    value: function init(canvas) {
+      _get(_getPrototypeOf(CubesatThingy.prototype), "init", this).call(this, canvas);
+
+      if (this.canvas) {
+        console.log(this.canvas);
+        this.renderer = new THREE.WebGLRenderer({
+          canvas: this.canvas
+        });
+        this.renderer.setSize(this.canvas.offsetWidth, this.canvas.offsetHeight);
+        this.camera = new THREE.PerspectiveCamera();
+        this.scene = new THREE.Scene();
+        this.cubesat = new _cubesat.default(this.scene, null);
+        this.camera.position.set(2, 2, 2);
+        this.camera.lookAt(this.cubesat.cube.position); // this.renderer.domElement = this.canvas;
+      }
+    }
+  }, {
     key: "animate",
     value: function animate(dt) {
-      this.context.fillStyle = "#ff0000";
-      this.context.fillRect(0, 0, 100, 100);
+      this.renderer.render(this.scene, this.camera);
     }
   }]);
 
@@ -44116,16 +44141,15 @@ function (_Thing2) {
 
     _classCallCheck(this, IonosondeThing);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(IonosondeThing).call(this, "ionosonde", "the ionosonde is a majestic beast", "An Ionosonde"));
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(IonosondeThing).call(this, "ionosonde", "\n            An ionosonde or ionospheric sounder(colloq.chirpsounder), is a specialized radar system\n            for the examination of the ionosphere.An ionosonde is used\n            for finding the optimum operation frequencies\n            for broadcasts or two - way communications in the high frequency range.(1)\n\n            An ionosonde consists of:\n\n            A high frequency(HF) transmitter, automatically tunable over a wide range.Typically the frequency coverage is 0.5\u2013 23 MHz or 1\u2013 40 MHz, though normally sweeps are confined to approximately 1.6\u2013 12 MHz.\n            A tracking HF receiver which can automatically track the frequency of the transmitter.\n            An antenna with a suitable radiation pattern, which transmits well vertically upwards and is efficient over the whole frequency range used.\n            Digital control and data analysis circuits.\n            The transmitter sweeps all or part of the HF frequency range, transmitting short pulses.These pulses are reflected at various layers of the ionosphere, at heights of 100\u2013 400 km, and their echoes are received by the receiver and analyzed by the control system.\n            \n            The controller measures the time delay between transmitting a pulse and receiving its echo back from the ionosphere.This delay can be converted into a height.\n            The final output of the ionosonde is in the form of a graph termed an ionogram, which is a plot of ionospheric echoes as a\n            function of height and frequency.An example is shown below.\n            An ionogram may then be used to compute a plot of the density of the plasma throughout the ionosphere.\n            An ionosonde is not only used in scientific research to measure and monitor the ionosphere.It is also used to support many applications that rely on or are affected by the ionosphere.These include shortwave broadcasting and high frequency communication, over the horizon radar systems and signal location(direction - finding), satellite communication and navigation, and radio astronomy.\n\n            More info/Sources:\n            <br><a href=\"https://www.spaceacademy.net.au/spacelab/tools/ionosonde.htm>https://www.spaceacademy.net.au/spacelab/tools/ionosonde.htm</a>\n        ", "An Ionosonde"));
     _this3.running = false;
     return _this3;
   }
 
   _createClass(IonosondeThing, [{
     key: "animate",
-    value: function animate(dt) {
-      this.context.fillStyle = "#00ff00";
-      this.context.fillRect(0, 0, 100, 100);
+    value: function animate(dt) {// this.context.fillStyle = "#00ff00";
+      // this.context.fillRect(0, 0, 100, 100);
     }
   }]);
 
@@ -44142,16 +44166,15 @@ function (_Thing3) {
 
     _classCallCheck(this, IonosphereThing);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(IonosphereThing).call(this, "ionosphere", "\n                The ionosphere is the layer of the earth 's atmosphere that contains a high concentration of ions and free electrons and is able to reflect radio waves. It lies above the mesosphere and extends from about 50 to 600 miles (80 to 1,000 km) above the earth's surface.\n        ", "The Ionosphere"));
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(IonosphereThing).call(this, "ionosphere", "\n                Ionosphere\n\n                The Ionosphere is part of Earth\u2019 s upper atmosphere, between 80 and about 600 km where Extreme UltraViolet(EUV) and x - ray solar radiation ionizes the atoms and molecules thus creating a layer of electrons.The ionosphere is important because it reflects and modifies radio waves used\n                for communication and navigation.Other phenomena such as energetic charged particles and cosmic rays also have an ionizing effect and can contribute to the ionosphere.\n\n                The atmospheric atoms and molecules are impacted by the high energy the EUV and X - ray photons from the sun.The amount of energy(photon flux) at EUV and x - ray wavelengths varies by nearly a factor of ten over the 11 year solar cycle.The density of the ionosphere changes accordingly.Due to spectral variability of the solar radiation and the density of various constituents in the atmosphere, there are layers are created within the ionosphere, called the D, E, and F - layers.Other solar phenomena, such as flares, and changes in the solar wind and geomagnetic storms also effect the charging of the ionosphere.Since the largest amount of ionization is caused by solar irradiance, the night - side of the earth, and the pole pointed away from the sun(depending on the season) have much less ionization than the day - side of the earth, and the pole pointing towards the sun.\n                < br >\n                The ionosphere has major importance to us because, among other functions, it influences radio propagation to distant places on the Earth, and between satellites and Earth.For the very low frequency(VLF) waves that the space weather monitors track, the ionosphere and the ground produce a\u201C waveguide\u201D through which radio signals can bounce and make their way around the curved Earth\n                < br >\n                Impacts\n                Radio Communication\n                Radio Navigation(GPS)\n                Satellite Communication\n                <br>\n                More info/Sources:\n                <a href = \"https://www.swpc.noaa.gov/phenomena/ionosphere\">https://www.swpc.noaa.gov/phenomena/ionosphere</a>\n                <br>  <a href = \"http://solar-center.stanford.edu/SID/activities/ionosphere.html\" > http://solar-center.stanford.edu/SID/activities/ionosphere.html</a>\n                \n", "The Ionosphere"));
     _this4.running = false;
     return _this4;
   }
 
   _createClass(IonosphereThing, [{
     key: "animate",
-    value: function animate(dt) {
-      this.context.fillStyle = "#00ff00";
-      this.context.fillRect(0, 0, 100, 100);
+    value: function animate(dt) {// this.context.fillStyle = "#00ff00";
+      // this.context.fillRect(0, 0, 100, 100);
     }
   }]);
 
@@ -44175,9 +44198,8 @@ function (_Thing4) {
 
   _createClass(WaveThing, [{
     key: "animate",
-    value: function animate(dt) {
-      this.context.fillStyle = "#00ff00";
-      this.context.fillRect(0, 0, 100, 100);
+    value: function animate(dt) {// this.context.fillStyle = "#00ff00";
+      // this.context.fillRect(0, 0, 100, 100);
     }
   }]);
 
@@ -44199,8 +44221,13 @@ function () {
     this.canvas.width = this.canvas.offsetWidth;
     this.canvas.height = this.canvas.offsetHeight;
     this.close = element.querySelector("#close");
-    this.close.addEventListener("click", function () {
-      return _this6.reset();
+    this.close.addEventListener("click", function (evt) {
+      _this6.reset();
+
+      evt.stopPropagation();
+    });
+    this.element.addEventListener('click', function (evt) {
+      return evt.stopPropagation();
     });
     this.things = {};
     this.currentThing = null;
@@ -44219,7 +44246,7 @@ function () {
         this.reset();
         this.currentThing = this.things[thing];
         this.currentThing.start();
-        this.text.innerHTML = this.currentThing.html;
+        this.text.innerHTML = this.currentThing.html.replace('\n', '<br>').replace(' ', '&nbsp;');
         this.title.innerHTML = this.currentThing.title;
         this.element.classList.add("visible");
       }
@@ -44413,7 +44440,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59788" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50501" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

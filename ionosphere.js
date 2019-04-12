@@ -10,7 +10,7 @@ export default class Ionosphere {
         lat = Math.PI / 2 - Math.PI * 2 * lat;
         long = Math.PI * 2 * long;
         let r = (this.b * Math.cos(this.d * lat) + this.a * Math.sin(this.c * long))*this.altitude/100;
-        let ret=(this.perlin.noise3D(...this.getCoords(this.altitude,lat*0.75,long*0.6))+1)/15+0.25;
+        let ret=(this.perlin.noise3D(...this.getCoords(this.altitude,lat,long))+1)/15+0.25;
         return ret;
     }
     getCoords(radius, lat, long) {

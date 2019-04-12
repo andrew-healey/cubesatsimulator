@@ -9,6 +9,10 @@
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
   },
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html -d ./dist"
+  },
   "dependencies": {
     "faster-simplex-noise": "^1.0.1",
     "hsv2rgb": "^1.1.0",
