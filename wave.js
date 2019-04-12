@@ -47,7 +47,6 @@ export default class Wave {
         this.lifetime += dt;
         let caster = new THREE.Raycaster(this.origin, this.origin, 0.1, 10);
         let rowNum = 0;
-        //console.log(dt,"is dt");
         let newLocus = this.geom.geometry.attributes.position.array;
         let scales=this.geom.geometry.attributes.scale.array;
         for (let row of this.locus) {
@@ -86,7 +85,6 @@ export default class Wave {
             }
             rowNum++;
         }
-        console.log(this.geom.geometry.attributes.position);
         this.geom.geometry.attributes.position.needsUpdate = true;
         this.geom.geometry.attributes.scale.needsUpdate=true;
     }

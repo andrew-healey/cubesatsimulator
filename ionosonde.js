@@ -26,10 +26,23 @@ export default class Ionosonde {
       vertices[1], vertices[2], vertices[3]
     ].reduce((last, next) => [...last, ...next], []);
     this.model.addAttribute("position", new THREE.Float32BufferAttribute(faces, 3))
-    this.geom = new THREE.Mesh(this.model, new THREE.MeshBasicMaterial({
+    let material=new THREE.MeshBasicMaterial({
       color: 0xFFFFFF,
       side: THREE.DoubleSide
-    }))
+    });
+    let model=new THREE.Group();
+    let stand=new THREE.CubeGeometry(this.radius/8,this.radius,this.radius/8);
+    stand=new THREE.Mesh(material,stand);
+    let perp=new THREE.CubeGeometry(this.radius/2,this.radius/8,this.radius/8)
+    perp.position.set(new THREE.Vector3(0,this.radius,0));
+    perp=new THREE.Mesh(perp,material);
+    model.add(stand,perp);
+    for(let i=0;i<5;i++){
+      let newRod=new THREE.CubeGeometry(this.radius/8,this.radius/8,this.radius/3);
+      newRod.position.set(new THREE.Vector3(this.radius/4*(i-2),this.radius,0));
+      model.add(new THREE.Mesh(newRod,material));
+    }
+    this.geom = model;
     this.geom.position.x = this.pos.x;
     this.geom.position.y = this.pos.y;
     this.geom.position.z = this.pos.z;
