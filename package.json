@@ -6,7 +6,7 @@
   "devDependencies": {
     "fs": "0.0.1-security",
     "sass": "^1.17.2",
-    "webpack": "^4.29.6",
+    "webpack": "^4.35.2",
     "webpack-cli": "^3.3.0"
   },
   "scripts": {
