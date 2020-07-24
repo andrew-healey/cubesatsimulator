@@ -20,6 +20,6 @@
     "parcel-bundler": "^1.12.2",
     "three": "^0.89.0",
     "three-orbitcontrols": "^2.102.1",
-    "three.interaction": "^0.2.2"
+    "three.interaction": "^0.2.3"
   }
 }
