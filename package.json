@@ -17,7 +17,7 @@
     "faster-simplex-noise": "^1.0.1",
     "hsv2rgb": "^1.1.0",
     "open-simplex-noise": "^1.6.0",
-    "parcel-bundler": "^1.12.2",
+    "parcel-bundler": "^1.12.5",
     "three": "^0.89.0",
     "three-orbitcontrols": "^2.102.1",
     "three.interaction": "^0.2.2"
